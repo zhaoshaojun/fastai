@@ -1,6 +1,6 @@
 from .imports import *
 
-from sklearn_pandas import DataFrameMapper
+# from sklearn_pandas import DataFrameMapper
 from sklearn.preprocessing import LabelEncoder, Imputer, StandardScaler
 from pandas.api.types import is_string_dtype, is_numeric_dtype, is_categorical_dtype
 from sklearn.ensemble import forest
@@ -67,7 +67,7 @@ def get_sample(df,n):
     idxs = sorted(np.random.permutation(len(df))[:n])
     return df.iloc[idxs].copy()
 
-def add_datepart(df, fldnames, drop=True, time=False, errors="raise"):	
+def add_datepart(df, fldnames, drop=True, time=False, errors="raise"):
     """add_datepart converts a column of df from a datetime64 to many columns containing
     the information from the date. This applies changes inplace.
     Parameters:
@@ -94,7 +94,7 @@ def add_datepart(df, fldnames, drop=True, time=False, errors="raise"):
     >>>df2 = pd.DataFrame({'start_date' : pd.to_datetime(['3/11/2000','3/13/2000','3/15/2000']),
                             'end_date':pd.to_datetime(['3/17/2000','3/18/2000','4/1/2000'],infer_datetime_format=True)})
     >>>df2
-        start_date	end_date    
+        start_date	end_date
     0	2000-03-11	2000-03-17
     1	2000-03-13	2000-03-18
     2	2000-03-15	2000-04-01
@@ -105,7 +105,7 @@ def add_datepart(df, fldnames, drop=True, time=False, errors="raise"):
     1	2000	    3	        11	        13	        0	            73	            False	            False	                False	                False               	False           	False           	952905600     	2000       	3	        11      	18  	5           	78          	False	            False           	False           	False               	False          	False           	953337600
     2	2000	    3	        11	        15	        2           	75          	False           	False               	False               	False               	False               False           	953078400      	2000    	4          	13      	1   	5           	92          	False           	True            	False           	True                	False          	False           	954547200
     """
-    if isinstance(fldnames,str): 
+    if isinstance(fldnames,str):
         fldnames = [fldnames]
     for fldname in fldnames:
         fld = df[fldname]
@@ -298,7 +298,7 @@ def scale_vars(df, mapper):
 def proc_df(df, y_fld=None, skip_flds=None, ignore_flds=None, do_scale=False, na_dict=None,
             preproc_fn=None, max_n_cat=None, subset=None, mapper=None):
     """ proc_df takes a data frame df and splits off the response variable, and
-    changes the df into an entirely numeric dataframe. For each column of df 
+    changes the df into an entirely numeric dataframe. For each column of df
     which is not in skip_flds nor in ignore_flds, na values are replaced by the
     median value of the column.
     Parameters:
