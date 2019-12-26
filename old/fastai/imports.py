@@ -1,8 +1,8 @@
 from IPython.lib.deepreload import reload as dreload
-import PIL, os, numpy as np, math, collections, threading, json, bcolz, random, scipy, cv2
+import PIL, os, numpy as np, math, collections, threading, json, random, scipy
 import pandas as pd, pickle, sys, itertools, string, sys, re, datetime, time, shutil, copy
 import seaborn as sns, matplotlib
-import IPython, graphviz, sklearn_pandas, sklearn, warnings, pdb
+import IPython, graphviz, sklearn, warnings, pdb
 import contextlib
 from abc import abstractmethod
 from glob import glob, iglob
@@ -10,8 +10,8 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from itertools import chain
 from functools import partial
 from collections import Iterable, Counter, OrderedDict
-from isoweek import Week
-from pandas_summary import DataFrameSummary
+# from isoweek import Week
+# from pandas_summary import DataFrameSummary
 from IPython.lib.display import FileLink
 from PIL import Image, ImageEnhance, ImageOps
 from sklearn import metrics, ensemble, preprocessing
