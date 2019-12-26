@@ -104,7 +104,6 @@
 from fastai.imports import *
 from fastai.structured import *
 
-from pandas_summary import DataFrameSummary
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from IPython.display import display
 
@@ -195,9 +194,12 @@ df_raw.SalePrice = np.log(df_raw.SalePrice)
 
 # ### Initial processing
 
-m = RandomForestRegressor(n_jobs=-1)
-# The following code is supposed to fail due to string values in the input data
-m.fit(df_raw.drop('SalePrice', axis=1), df_raw.SalePrice)
+try:
+    m = RandomForestRegressor(n_jobs=-1)
+    # The following code is supposed to fail due to string values in the input data
+    m.fit(df_raw.drop('SalePrice', axis=1), df_raw.SalePrice)
+except:
+    print("something went wrong.")
 
 # This dataset contains a mix of **continuous** and **categorical** variables.
 #
@@ -233,7 +235,8 @@ df_raw.to_feather('tmp/bulldozers-raw')
 
 # In the future we can simply read it from this fast format.
 
-df_raw = pd.read_feather('tmp/bulldozers-raw')
+import feather
+df_raw = feather.read_dataframe('tmp/bulldozers-raw')
 
 # We'll replace categories with their numeric codes, handle missing continuous values, and split the dependent variable into a separate variable.
 
