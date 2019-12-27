@@ -244,7 +244,7 @@ df, y, nas = proc_df(df_raw, 'SalePrice')
 
 # We now have something we can pass to a random forest!
 
-m = RandomForestRegressor(n_jobs=-1)
+m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 m.fit(df, y)
 m.score(df,y)
 
@@ -287,18 +287,26 @@ X_train.shape, y_train.shape, X_valid.shape
 # +
 def rmse(x,y): return math.sqrt(((x-y)**2).mean())
 
-def print_score(m):
-    res = [rmse(m.predict(X_train), y_train), rmse(m.predict(X_valid), y_valid),
-                m.score(X_train, y_train), m.score(X_valid, y_valid)]
-    if hasattr(m, 'oob_score_'): res.append(m.oob_score_)
-    print(res)
+def get_scores(m, comment):
+    res = {
+        'comment':[comment],
+        'rmse_train': [rmse(m.predict(X_train), y_train)], 
+        'rmse_dev': [rmse(m.predict(X_valid), y_valid)],
+        'r^2_train': [m.score(X_train, y_train)], 
+        'r^2_dev': [m.score(X_valid, y_valid)],
+        'oob': [None],
+    }
+    if hasattr(m, 'oob_score_'): res['oob'][0] = m.oob_score_
+    return pd.DataFrame(res)
 
 
 # -
 
-m = RandomForestRegressor(n_jobs=-1)
+m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 # %time m.fit(X_train, y_train)
-print_score(m)
+
+results = get_scores(m, 'baseline')
+results
 
 # An r^2 in the high-80's isn't bad at all (and the RMSLE puts us around rank 100 of 470 on the Kaggle leaderboard), but we can see from the validation set score that we're over-fitting badly. To understand this issue, let's simplify things down to a single small tree.
 
@@ -308,9 +316,22 @@ df_trn, y_trn, nas = proc_df(df_raw, 'SalePrice', subset=30000, na_dict=nas)
 X_train, _ = split_vals(df_trn, 20000)
 y_train, _ = split_vals(y_trn, 20000)
 
-m = RandomForestRegressor(n_jobs=-1)
+m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 # %time m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'speedup')
+tmp
+
+results = pd.concat([results, tmp])
+results
+
+results.plot.bar(
+    x='comment', 
+    subplots=True, 
+    rot=0, 
+    ylim=(0,1), 
+    title=['']*(results.shape[1]-2)
+);
 
 # ## Single tree
 
