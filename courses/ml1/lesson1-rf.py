@@ -231,6 +231,8 @@ display_all(df_raw.isnull().sum().sort_index()/len(df_raw))
 os.makedirs('tmp', exist_ok=True)
 df_raw.to_feather('tmp/bulldozers-raw')
 
+# # Random Forests
+
 # ### Pre-processing
 
 # In the future we can simply read it from this fast format.
@@ -278,8 +280,6 @@ X_train.shape, y_train.shape, X_valid.shape
 
 # -
 
-# # Random Forests
-
 # ## Base model
 
 # Let's try our model again, this time with separate training and validation sets.
@@ -297,6 +297,7 @@ def get_scores(m, config):
         'oob': [None],
         'n_trees':[m.n_estimators],
         'train_size': [len(y_train)],
+        'dev_size': [len(y_valid)],
     }
     if hasattr(m, 'oob_score_'): res['oob'][0] = m.oob_score_
     return pd.DataFrame(res)
