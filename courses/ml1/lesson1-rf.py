@@ -198,8 +198,9 @@ try:
     m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
     # The following code is supposed to fail due to string values in the input data
     m.fit(df_raw.drop('SalePrice', axis=1), df_raw.SalePrice)
-except:
-    print("something went wrong.")
+    assert False
+except Exception as e:
+    print(f"something went wrong: {e}")
 
 # This dataset contains a mix of **continuous** and **categorical** variables.
 #
