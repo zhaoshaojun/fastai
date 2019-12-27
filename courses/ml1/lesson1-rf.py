@@ -195,7 +195,7 @@ df_raw.SalePrice = np.log(df_raw.SalePrice)
 # ### Initial processing
 
 try:
-    m = RandomForestRegressor(n_jobs=-1)
+    m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
     # The following code is supposed to fail due to string values in the input data
     m.fit(df_raw.drop('SalePrice', axis=1), df_raw.SalePrice)
 except:
@@ -287,14 +287,16 @@ X_train.shape, y_train.shape, X_valid.shape
 # +
 def rmse(x,y): return math.sqrt(((x-y)**2).mean())
 
-def get_scores(m, comment):
+def get_scores(m, config):
     res = {
-        'comment':[comment],
+        'config':[config],
         'rmse_train': [rmse(m.predict(X_train), y_train)], 
         'rmse_dev': [rmse(m.predict(X_valid), y_valid)],
         'r^2_train': [m.score(X_train, y_train)], 
         'r^2_dev': [m.score(X_valid, y_valid)],
         'oob': [None],
+        'n_trees':[m.n_estimators],
+        'train_size': [len(y_train)],
     }
     if hasattr(m, 'oob_score_'): res['oob'][0] = m.oob_score_
     return pd.DataFrame(res)
@@ -305,7 +307,7 @@ def get_scores(m, comment):
 m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 # %time m.fit(X_train, y_train)
 
-results = get_scores(m, 'baseline')
+results = get_scores(m, 'baseline (slow)')
 results
 
 # An r^2 in the high-80's isn't bad at all (and the RMSLE puts us around rank 100 of 470 on the Kaggle leaderboard), but we can see from the validation set score that we're over-fitting badly. To understand this issue, let's simplify things down to a single small tree.
@@ -325,19 +327,34 @@ tmp
 results = pd.concat([results, tmp])
 results
 
-results.plot.bar(
-    x='comment', 
+cols = results.columns[:5]
+results[cols].plot.bar(
+    x='config', 
     subplots=True, 
     rot=0, 
     ylim=(0,1), 
-    title=['']*(results.shape[1]-2)
+    # title=['']*4,
+    legend=False
 );
 
 # ## Single tree
 
 m = RandomForestRegressor(n_estimators=1, max_depth=3, bootstrap=False, n_jobs=-1)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'single tree')
+tmp
+
+results = pd.concat([results, tmp])
+results
+
+results.plot.bar(
+    x='config', 
+    subplots=True, 
+    rot=0, 
+    ylim=(0,1), 
+    title=['']*(results.shape[1]-2)
+);
 
 draw_tree(m.estimators_[0], df_trn, precision=3)
 
@@ -345,7 +362,20 @@ draw_tree(m.estimators_[0], df_trn, precision=3)
 
 m = RandomForestRegressor(n_estimators=1, bootstrap=False, n_jobs=-1)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'single deep tree')
+tmp
+
+results = pd.concat([results, tmp])
+results
+
+results.plot.bar(
+    x='config', 
+    subplots=True, 
+    rot=0, 
+    ylim=(0,1), 
+    title=['']*(results.shape[1]-2)
+);
 
 # The training set result looks great! But the validation set is worse than our original model. This is why we need to use *bagging* of multiple trees to get more generalizable results.
 
@@ -355,9 +385,22 @@ print_score(m)
 
 # To learn about bagging in random forests, let's start with our basic model again.
 
-m = RandomForestRegressor(n_jobs=-1)
+m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'baseline (fast)')
+tmp
+
+results = pd.concat([results, tmp])
+results
+
+results.plot.line(
+    x='config', 
+    subplots=True, 
+    rot=45, 
+    ylim=(0,1), 
+    title=['']*(results.shape[1]-2),
+);
 
 # We'll grab the predictions for each individual tree, and look at one example.
 
@@ -372,15 +415,15 @@ plt.plot([metrics.r2_score(y_valid, np.mean(preds[:i+1], axis=0)) for i in range
 
 m = RandomForestRegressor(n_estimators=20, n_jobs=-1)
 m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, "")
 
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1)
 m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, "")
 
 m = RandomForestRegressor(n_estimators=80, n_jobs=-1)
 m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, "")
 
 # ### Out-of-bag (OOB) score
 
@@ -394,7 +437,7 @@ print_score(m)
 
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, "")
 
 # This shows that our validation set time difference is making an impact, as is model over-fitting.
 
@@ -412,15 +455,23 @@ y_train, y_valid = split_vals(y_trn, n_trn)
 
 set_rf_samples(20000)
 
-m = RandomForestRegressor(n_jobs=-1, oob_score=True)
+m = RandomForestRegressor(n_estimators=10, n_jobs=-1, oob_score=True)
 # %time m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, "")
+tmp
 
 # Since each additional tree allows the model to see more data, this approach can make additional trees more useful.
 
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, "")
+tmp
+
+results
+
+assert False
 
 # ### Tree building parameters
 
