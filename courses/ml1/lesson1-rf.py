@@ -308,16 +308,20 @@ def get_scores(m, config):
 m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 # %time m.fit(X_train, y_train)
 
-results = get_scores(m, 'baseline (slow)')
+results = get_scores(m, 'baseline-slow')
 results
 
 # An r^2 in the high-80's isn't bad at all (and the RMSLE puts us around rank 100 of 470 on the Kaggle leaderboard), but we can see from the validation set score that we're over-fitting badly. To understand this issue, let's simplify things down to a single small tree.
 
 # ## Speeding things up
 
+nas
+
 df_trn, y_trn, nas = proc_df(df_raw, 'SalePrice', subset=30000, na_dict=nas)
 X_train, _ = split_vals(df_trn, 20000)
 y_train, _ = split_vals(y_trn, 20000)
+
+nas
 
 m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 # %time m.fit(X_train, y_train)
@@ -335,7 +339,8 @@ results[cols].plot.bar(
     rot=0, 
     ylim=(0,1), 
     # title=['']*4,
-    legend=False
+    legend=False,
+    figsize=(8,8)
 );
 
 # ## Single tree
@@ -349,12 +354,15 @@ tmp
 results = pd.concat([results, tmp])
 results
 
-results.plot.bar(
+cols = results.columns[:5]
+results[cols].plot.bar(
     x='config', 
     subplots=True, 
     rot=0, 
     ylim=(0,1), 
-    title=['']*(results.shape[1]-2)
+    # title=['']*4,
+    legend=False,
+    figsize=(8,8)
 );
 
 draw_tree(m.estimators_[0], df_trn, precision=3)
@@ -370,12 +378,15 @@ tmp
 results = pd.concat([results, tmp])
 results
 
-results.plot.bar(
+cols = results.columns[:5]
+results[cols].plot.bar(
     x='config', 
     subplots=True, 
     rot=0, 
     ylim=(0,1), 
-    title=['']*(results.shape[1]-2)
+    # title=['']*4,
+    legend=False,
+    figsize=(8,8)
 );
 
 # The training set result looks great! But the validation set is worse than our original model. This is why we need to use *bagging* of multiple trees to get more generalizable results.
@@ -389,18 +400,21 @@ results.plot.bar(
 m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 m.fit(X_train, y_train)
 
-tmp = get_scores(m, 'baseline (fast)')
+tmp = get_scores(m, 'baseline-fast')
 tmp
 
 results = pd.concat([results, tmp])
 results
 
-results.plot.line(
+cols = results.columns[:5]
+results[cols].plot.bar(
     x='config', 
     subplots=True, 
-    rot=45, 
+    rot=0, 
     ylim=(0,1), 
-    title=['']*(results.shape[1]-2),
+    # title=['']*4,
+    legend=False,
+    figsize=(8,8)
 );
 
 # We'll grab the predictions for each individual tree, and look at one example.
@@ -424,7 +438,23 @@ get_scores(m, "")
 
 m = RandomForestRegressor(n_estimators=80, n_jobs=-1)
 m.fit(X_train, y_train)
-get_scores(m, "")
+
+tmp = get_scores(m, "baseline-fast-80")
+tmp
+
+results = pd.concat([results, tmp])
+results
+
+cols = results.columns[:5]
+results[cols].plot.bar(
+    x='config', 
+    subplots=True, 
+    rot=45,
+    ylim=(0,1), 
+    # title=['']*4,
+    legend=False,
+    figsize=(8,8),
+);
 
 # ### Out-of-bag (OOB) score
 
@@ -438,7 +468,12 @@ get_scores(m, "")
 
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-get_scores(m, "")
+
+tmp = get_scores(m, "baseline-fast-40-oob")
+tmp
+
+results = pd.concat([results, tmp])
+results
 
 # This shows that our validation set time difference is making an impact, as is model over-fitting.
 
@@ -459,20 +494,44 @@ set_rf_samples(20000)
 m = RandomForestRegressor(n_estimators=10, n_jobs=-1, oob_score=True)
 # %time m.fit(X_train, y_train)
 
-tmp = get_scores(m, "")
+tmp = get_scores(m, "baseline-subsample-10")
 tmp
+
+results = pd.concat([results, tmp])
+results
+
+cols = results.columns[:5]
+results[cols].plot.bar(
+    x='config', 
+    subplots=True, 
+    rot=45,
+    ylim=(0,1), 
+    # title=['']*4,
+    legend=False,
+    figsize=(8,8),
+);
 
 # Since each additional tree allows the model to see more data, this approach can make additional trees more useful.
 
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
 
-tmp = get_scores(m, "")
+tmp = get_scores(m, "baseline-subsample-40")
 tmp
 
+results = pd.concat([results, tmp])
 results
 
-assert False
+cols = results.columns[:5]
+results[cols].plot.bar(
+    x='config', 
+    subplots=True, 
+    rot=45,
+    ylim=(0,1), 
+    # title=['']*4,
+    legend=False,
+    figsize=(8,8),
+);
 
 # ### Tree building parameters
 
