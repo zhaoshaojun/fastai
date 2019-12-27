@@ -22,12 +22,14 @@ PATH = "data/bulldozers/"
 
 # ## The data
 
+# ## (a) reading csv, specify dates
+
 df_raw = pd.read_csv(f'{PATH}Train.csv', low_memory=False, 
                      parse_dates=["saledate"])
 
 df_raw.SalePrice = np.log(df_raw.SalePrice)
 
-# ### Initial processing
+# ### before processing
 
 try:
     m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
@@ -41,10 +43,14 @@ except Exception as e:
 #
 # The following method extracts particular date fields from a complete datetime for the purpose of constructing categoricals.  You should always consider this feature extraction step when working with date-time. Without expanding your date-time into these additional fields, you can't capture any trend/cyclical behavior as a function of time at any of these granularities.
 
+# ## (b) processing dates
+
 add_datepart(df_raw, 'saledate')
 df_raw.saleYear.head()
 
 # The categorical variables are currently stored as strings, which is inefficient, and doesn't provide the numeric coding required for a random forest. Therefore we call `train_cats` to convert strings to pandas categories.
+
+# ## (c) change string object to categorical
 
 train_cats(df_raw)
 
@@ -56,7 +62,7 @@ df_raw.UsageBand.cat.set_categories(['High', 'Medium', 'Low'], ordered=True, inp
 
 # Normally, pandas will continue displaying the text categories, while treating them as numerical data internally. Optionally, we can replace the text categories with numbers, which will make this variable non-categorical, like so:.
 
-df_raw.UsageBand = df_raw.UsageBand.cat.codes
+df_raw.UsageBand = df_raw.UsageBand.cat.codes + 1
 
 # We're still not quite done - for instance we have lots of missing values, which we can't pass directly to a random forest.
 
@@ -67,9 +73,7 @@ df_raw.to_feather('tmp/bulldozers-raw')
 
 # !ls -lrth tmp/bulldozers-raw
 
-# ## Random Forests
-
-# ### Pre-processing
+# ## (d) change everything to numbers
 
 # In the future we can simply read it from this fast format.
 
@@ -81,6 +85,8 @@ df_raw = feather.read_dataframe('tmp/bulldozers-raw')
 df, y, nas = proc_df(df_raw, 'SalePrice')
 
 nas
+
+# ## Random Forests
 
 # ## overfit
 
