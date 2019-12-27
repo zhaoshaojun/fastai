@@ -287,7 +287,7 @@ X_train.shape, y_train.shape, X_valid.shape
 # +
 def rmse(x,y): return math.sqrt(((x-y)**2).mean())
 
-def get_scores(m, config):
+def get_scores(m, config=None):
     res = {
         'config':[config],
         'rmse_train': [rmse(m.predict(X_train), y_train)], 
@@ -522,15 +522,15 @@ tmp
 results = pd.concat([results, tmp])
 results
 
-cols = results.columns[:5]
-results[cols].plot.bar(
+cols = results.columns[:6]
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=45,
+    # rot=45,
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8),
+    figsize=(8,20),
 );
 
 # ### Tree building parameters
@@ -560,15 +560,23 @@ def dectree_max_depth(tree):
 
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
 
-t=m.estimators_[0].tree_
+tmp = get_scores(m, 'baseline-slow')
+tmp
 
-dectree_max_depth(t)
+results = pd.concat([results, tmp])
+results
 
-m = RandomForestRegressor(n_estimators=40, min_samples_leaf=5, n_jobs=-1, oob_score=True)
-m.fit(X_train, y_train)
-print_score(m)
+cols = results.columns[:6]
+results[cols].plot.barh(
+    x='config', 
+    subplots=True, 
+    # rot=45,
+    ylim=(0,1), 
+    # title=['']*4,
+    legend=False,
+    figsize=(8, 20),
+);
 
 t=m.estimators_[0].tree_
 
@@ -579,9 +587,21 @@ dectree_max_depth(t)
 # - There are less decision rules for each leaf node; simpler models should generalize better
 # - The predictions are made by averaging more rows in the leaf node, resulting in less volatility
 
+m = RandomForestRegressor(n_estimators=40, min_samples_leaf=5, n_jobs=-1, oob_score=True)
+m.fit(X_train, y_train)
+
+tmp = get_scores(m, 'baseline-slow-tuning')
+tmp
+
+t=m.estimators_[0].tree_
+
+dectree_max_depth(t)
+
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'baseline-slow-tuning')
+tmp
 
 # We can also increase the amount of variation amongst the trees by not only use a sample of rows for each tree, but to also using a sample of *columns* for each *split*. We do this by specifying `max_features`, which is the proportion of features to randomly select from at each split.
 
@@ -593,7 +613,23 @@ print_score(m)
 
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'baseline-slow-tuning')
+tmp
+
+results = pd.concat([results, tmp])
+results
+
+cols = results.columns[:6]
+results[cols].plot.barh(
+    x='config', 
+    subplots=True, 
+    # rot=90,
+    # ylim=(0,1), 
+    # title=['']*4,
+    legend=False,
+    figsize=(8,20),
+);
 
 # We can't compare our results directly with the Kaggle competition, since it used a different validation set (and we can no longer to submit to this competition) - but we can at least see that we're getting similar results to the winners based on the dataset we have.
 #
