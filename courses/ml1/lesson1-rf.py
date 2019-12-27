@@ -333,14 +333,14 @@ results = pd.concat([results, tmp])
 results
 
 cols = results.columns[:5]
-results[cols].plot.bar(
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=0, 
+    # rot=0, 
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8)
+    figsize=(8,20)
 );
 
 # ## Single tree
@@ -355,14 +355,14 @@ results = pd.concat([results, tmp])
 results
 
 cols = results.columns[:5]
-results[cols].plot.bar(
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=0, 
+    # rot=0, 
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8)
+    figsize=(8,20)
 );
 
 draw_tree(m.estimators_[0], df_trn, precision=3)
@@ -379,14 +379,14 @@ results = pd.concat([results, tmp])
 results
 
 cols = results.columns[:5]
-results[cols].plot.bar(
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=0, 
+    # rot=0, 
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8)
+    figsize=(8,20)
 );
 
 # The training set result looks great! But the validation set is worse than our original model. This is why we need to use *bagging* of multiple trees to get more generalizable results.
@@ -407,14 +407,14 @@ results = pd.concat([results, tmp])
 results
 
 cols = results.columns[:5]
-results[cols].plot.bar(
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=0, 
+    # rot=0, 
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8)
+    figsize=(8,20)
 );
 
 # We'll grab the predictions for each individual tree, and look at one example.
@@ -446,14 +446,14 @@ results = pd.concat([results, tmp])
 results
 
 cols = results.columns[:5]
-results[cols].plot.bar(
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=45,
+    # rot=45,
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8),
+    figsize=(8,20),
 );
 
 # ### Out-of-bag (OOB) score
@@ -501,14 +501,14 @@ results = pd.concat([results, tmp])
 results
 
 cols = results.columns[:5]
-results[cols].plot.bar(
+results[cols].plot.barh(
     x='config', 
     subplots=True, 
-    rot=45,
+    # rot=45,
     ylim=(0,1), 
     # title=['']*4,
     legend=False,
-    figsize=(8,8),
+    figsize=(8,20),
 );
 
 # Since each additional tree allows the model to see more data, this approach can make additional trees more useful.
