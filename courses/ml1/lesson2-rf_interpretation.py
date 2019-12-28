@@ -10,7 +10,7 @@
 
 from fastai.imports import *
 from fastai.structured import *
-from pandas_summary import DataFrameSummary
+# from pandas_summary import DataFrameSummary
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from IPython.display import display
 from sklearn import metrics
@@ -40,11 +40,20 @@ raw_train, raw_valid = split_vals(df_raw, n_trn)
 # +
 def rmse(x,y): return math.sqrt(((x-y)**2).mean())
 
-def print_score(m):
-    res = [rmse(m.predict(X_train), y_train), rmse(m.predict(X_valid), y_valid),
-                m.score(X_train, y_train), m.score(X_valid, y_valid)]
-    if hasattr(m, 'oob_score_'): res.append(m.oob_score_)
-    print(res)
+def get_scores(m, config=None):
+    res = {
+        'config': [config],
+        'rmse_train': [rmse(m.predict(X_train), y_train)],
+        'rmse_dev': [rmse(m.predict(X_valid), y_valid)],
+        'r2_train': [m.score(X_train, y_train)],
+        'r2_dev': [m.score(X_valid, y_valid)],
+        'r2_oob': [None],
+        'n_trees':[m.n_estimators],
+        'train_size': [len(y_train)],
+        'dev_size': [len(y_valid)],
+    }
+    if hasattr(m, 'oob_score_'): res['r2_oob'][0] = m.oob_score_
+    return pd.DataFrame(res)
 
 
 # -
@@ -59,7 +68,9 @@ set_rf_samples(50000)
 
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+
+results = get_scores(m, 'baseline-subsample-tuning')
+results
 
 # We saw how the model averages predictions across the trees to get an estimate - but how can we know the confidence of the estimate? One simple way is to use the standard deviation of predictions, instead of just the mean. This tells us the *relative* confidence of predictions - that is, for rows where the trees give very different results, you would want to be more cautious of using those results, compared to cases where they are more consistent. Using the same example as in the last lesson when we looked at bagging:
 
@@ -121,7 +132,12 @@ X_train, X_valid = split_vals(df_keep, n_trn)
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5,
                           n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'fi')
+tmp
+
+results = pd.concat([tmp, results])
+results[::-1]
 
 fi = rf_feat_importance(m, df_keep)
 plot_fi(fi);
@@ -160,8 +176,13 @@ X_train, X_valid = split_vals(df_trn2, n_trn)
 
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.6, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
 # -
+
+tmp = get_scores(m, 'one-hot')
+tmp
+
+results = pd.concat([tmp, results])
+results[::-1]
 
 fi = rf_feat_importance(m, df_trn2)
 plot_fi(fi[:25]);

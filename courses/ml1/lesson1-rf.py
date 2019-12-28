@@ -233,7 +233,9 @@ df_raw.UsageBand.cat.set_categories(['High', 'Medium', 'Low'], ordered=True, inp
 
 # Normally, pandas will continue displaying the text categories, while treating them as numerical data internally. Optionally, we can replace the text categories with numbers, which will make this variable non-categorical, like so:.
 
-df_raw.UsageBand = df_raw.UsageBand.cat.codes
+# +
+# df_raw.UsageBand = df_raw.UsageBand.cat.codes
+# -
 
 # We're still not quite done - for instance we have lots of missing values, which we can't pass directly to a random forest.
 
