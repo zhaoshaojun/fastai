@@ -313,14 +313,14 @@ def get_scores(m, config=None):
         'config': [config],
         'rmse_train': [rmse(m.predict(X_train), y_train)],
         'rmse_dev': [rmse(m.predict(X_valid), y_valid)],
-        'r^2_train': [m.score(X_train, y_train)],
-        'r^2_dev': [m.score(X_valid, y_valid)],
-        'oob': [None],
+        'r2_train': [m.score(X_train, y_train)],
+        'r2_dev': [m.score(X_valid, y_valid)],
+        'r2_oob': [None],
         'n_trees':[m.n_estimators],
         'train_size': [len(y_train)],
         'dev_size': [len(y_valid)],
     }
-    if hasattr(m, 'oob_score_'): res['oob'][0] = m.oob_score_
+    if hasattr(m, 'oob_score_'): res['r2_oob'][0] = m.oob_score_
     return pd.DataFrame(res)
 
 
