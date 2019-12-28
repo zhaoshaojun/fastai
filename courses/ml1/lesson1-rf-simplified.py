@@ -403,7 +403,7 @@ def dectree_max_depth(tree):
 m = RandomForestRegressor(n_estimators=40, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
 
-tmp = get_scores(m, 'baseline-slow')
+tmp = get_scores(m, 'baseline-slow-40')
 tmp
 
 results = pd.concat([tmp, results])
