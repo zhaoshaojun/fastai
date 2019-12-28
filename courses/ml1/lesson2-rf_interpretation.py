@@ -200,6 +200,10 @@ fig = plt.figure(figsize=(16,10))
 dendrogram = hc.dendrogram(z, labels=df_keep.columns, orientation='left', leaf_font_size=16)
 plt.show()
 
+sorted(list(df_keep.columns))
+
+len(corr), len(corr[0])
+
 
 # Let's try removing some of these related features to see if the model can be simplified without impacting the accuracy.
 
@@ -229,10 +233,15 @@ get_oob(df_keep.drop(to_drop, axis=1))
 df_keep.drop(to_drop, axis=1, inplace=True)
 X_train, X_valid = split_vals(df_keep, n_trn)
 
-np.save('tmp/keep_cols.npy', np.array(df_keep.columns))
+# +
+# np.save('tmp/keep_cols.npy', np.array(df_keep.columns))
+# -
 
-keep_cols = np.load('tmp/keep_cols.npy')
-df_keep = df_trn[keep_cols]
+# keep_cols = np.load('tmp/keep_cols.npy')
+# df_keep = df_trn[keep_cols]
+keep_cols = df_keep.columns
+
+sorted(list(keep_cols))
 
 # And let's see how this model looks on the full dataset.
 
@@ -240,7 +249,12 @@ reset_rf_samples()
 
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+
+tmp = get_scores(m, 'baseline-slow-dedup')
+tmp
+
+results = pd.concat([tmp, results])
+results[::-1]
 
 # # Partial dependence
 
@@ -267,7 +281,7 @@ ggplot(x_all, aes('YearMade', 'SalePrice'))+stat_smooth(se=True, method='loess')
 x = get_sample(X_train[X_train.YearMade>1930], 500)
 
 
-def plot_pdp(feat, clusters=None, feat_name=None):
+def plot_pdp_old(feat, clusters=None, feat_name=None):
     feat_name = feat_name or feat
     p = pdp.pdp_isolate(m, x, feat)
     return pdp.pdp_plot(p, feat_name, plot_lines=True,
@@ -275,13 +289,26 @@ def plot_pdp(feat, clusters=None, feat_name=None):
                         n_cluster_centers=clusters)
 
 
+def plot_pdp(feat, clusters = None, feat_name = None):
+    feat_name = feat_name or feat
+    p = pdp.pdp_isolate(m, x, feature = feat, model_features = x.columns)
+    return pdp.pdp_plot(p, feat_name, plot_lines = True,
+                        cluster = clusters is not None,
+                        n_cluster_centers = clusters)
+
+
 plot_pdp('YearMade')
 
 plot_pdp('YearMade', clusters=5)
 
-feats = ['saleElapsed', 'YearMade']
-p = pdp.pdp_interact(m, x, feats)
-pdp.pdp_interact_plot(p, feats)
+sorted(list(x.columns))
+
+try:
+    feats = ['saleElapsed', 'YearMade']
+    p = pdp.pdp_interact(m, x, x.columns, feats)
+    pdp.pdp_interact_plot(p, feats)
+except:
+    print("ignore errors")
 
 plot_pdp(['Enclosure_EROPS w AC', 'Enclosure_EROPS', 'Enclosure_OROPS'], 5, 'Enclosure')
 
