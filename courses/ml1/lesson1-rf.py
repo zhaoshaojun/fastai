@@ -173,14 +173,14 @@ PATH = "data/bulldozers/"
 #
 # What stands out to you from the above description?  What needs to be true of our training and validation sets?
 
-df_raw = pd.read_csv(f'{PATH}Train.csv', low_memory=False, 
+df_raw = pd.read_csv(f'{PATH}Train.csv', low_memory=False,
                      parse_dates=["saledate"])
 
 
 # In any sort of data science work, it's **important to look at your data**, to make sure you understand the format, how it's stored, what type of values it holds, etc. Even if you've read descriptions about your data, the actual data may not be what you expect.
 
 def display_all(df):
-    with pd.option_context("display.max_rows", 1000, "display.max_columns", 1000): 
+    with pd.option_context("display.max_rows", 1000, "display.max_columns", 1000):
         display(df)
 
 
@@ -292,7 +292,7 @@ def split_vals(a,n): return a[:n].copy(), a[n:].copy()
 
 n_valid = 12000  # same as Kaggle's test set size
 n_trn = len(df)-n_valid
-raw_train, raw_valid = split_vals(df_raw, n_trn)
+# raw_train, raw_valid = split_vals(df_raw, n_trn)
 X_train, X_valid = split_vals(df, n_trn)
 y_train, y_valid = split_vals(y, n_trn)
 
@@ -310,10 +310,10 @@ def rmse(x,y): return math.sqrt(((x-y)**2).mean())
 
 def get_scores(m, config=None):
     res = {
-        'config':[config],
-        'rmse_train': [rmse(m.predict(X_train), y_train)], 
+        'config': [config],
+        'rmse_train': [rmse(m.predict(X_train), y_train)],
         'rmse_dev': [rmse(m.predict(X_valid), y_valid)],
-        'r^2_train': [m.score(X_train, y_train)], 
+        'r^2_train': [m.score(X_train, y_train)],
         'r^2_dev': [m.score(X_valid, y_valid)],
         'oob': [None],
         'n_trees':[m.n_estimators],
@@ -350,18 +350,18 @@ m = RandomForestRegressor(n_estimators=10, n_jobs=-1)
 tmp = get_scores(m, 'speedup')
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:5]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
-    # rot=0, 
-    ylim=(0,1), 
+    x='config',
+    subplots=True,
+    # rot=0,
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20)
+    figsize=(8,3*results.shape[0])
 );
 
 # ## Single tree
@@ -372,18 +372,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, 'single tree')
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:5]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
-    # rot=0, 
-    ylim=(0,1), 
+    x='config',
+    subplots=True,
+    # rot=0,
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20)
+    figsize=(8,3*results.shape[0])
 );
 
 draw_tree(m.estimators_[0], df_trn, precision=3)
@@ -396,18 +396,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, 'single deep tree')
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:5]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
-    # rot=0, 
-    ylim=(0,1), 
+    x='config',
+    subplots=True,
+    # rot=0,
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20)
+    figsize=(8,3*results.shape[0])
 );
 
 # The training set result looks great! But the validation set is worse than our original model. This is why we need to use *bagging* of multiple trees to get more generalizable results.
@@ -424,18 +424,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, 'baseline-fast')
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:5]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
-    # rot=0, 
-    ylim=(0,1), 
+    x='config',
+    subplots=True,
+    # rot=0,
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20)
+    figsize=(8,3*results.shape[0])
 );
 
 # We'll grab the predictions for each individual tree, and look at one example.
@@ -463,18 +463,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, "baseline-fast-80")
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:5]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
+    x='config',
+    subplots=True,
     # rot=45,
-    ylim=(0,1), 
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20),
+    figsize=(8,3*results.shape[0])
 );
 
 # ### Out-of-bag (OOB) score
@@ -493,8 +493,8 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, "baseline-fast-40-oob")
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 # This shows that our validation set time difference is making an impact, as is model over-fitting.
 
@@ -518,18 +518,18 @@ m = RandomForestRegressor(n_estimators=10, n_jobs=-1, oob_score=True)
 tmp = get_scores(m, "baseline-subsample-10")
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:5]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
+    x='config',
+    subplots=True,
     # rot=45,
-    ylim=(0,1), 
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20),
+    figsize=(8,3*results.shape[0])
 );
 
 # Since each additional tree allows the model to see more data, this approach can make additional trees more useful.
@@ -540,18 +540,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, "baseline-subsample-40")
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:6]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
+    x='config',
+    subplots=True,
     # rot=45,
-    ylim=(0,1), 
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20),
+    figsize=(8,3*results.shape[0])
 );
 
 # ### Tree building parameters
@@ -585,18 +585,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, 'baseline-slow')
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:6]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
+    x='config',
+    subplots=True,
     # rot=45,
-    ylim=(0,1), 
+    ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8, 20),
+    figsize=(8,3*results.shape[0])
 );
 
 t=m.estimators_[0].tree_
@@ -638,18 +638,18 @@ m.fit(X_train, y_train)
 tmp = get_scores(m, 'baseline-slow-tuning')
 tmp
 
-results = pd.concat([results, tmp])
-results
+results = pd.concat([tmp, results])
+results[::-1]
 
 cols = results.columns[:6]
 results[cols].plot.barh(
-    x='config', 
-    subplots=True, 
+    x='config',
+    subplots=True,
     # rot=90,
-    # ylim=(0,1), 
+    # ylim=(0,1),
     # title=['']*4,
     legend=False,
-    figsize=(8,20),
+    figsize=(8,3*results.shape[0])
 );
 
 # We can't compare our results directly with the Kaggle competition, since it used a different validation set (and we can no longer to submit to this competition) - but we can at least see that we're getting similar results to the winners based on the dataset we have.
