@@ -8,7 +8,7 @@
 
 # Note from Shaojun
 
-If you want to study the fastai ML course, and follow the course by running the Jupyter Notebooks on your Mac, this repo is for you!
+If you want to study the fastai ML course in 2020, and follow the course by running the Jupyter Notebooks on your own machine (esp. on a Mac), this repo is for you!
 
 Just git clone this repo, and install dependecies when you found they are missing. You do not have to install fastai.
 
