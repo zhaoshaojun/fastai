@@ -145,7 +145,9 @@ def get_scores(m, config=None):
         'train_size': [len(y_train)],
         'dev_size': [len(y_valid)],
     }
-    if hasattr(m, 'oob_score_'): res['r2_oob'][0] = m.oob_score_
+    if hasattr(m, 'oob_score_'): 
+        if m.oob_score_ > 0:
+            res['r2_oob'][0] = m.oob_score_
     return pd.DataFrame(res)
 
 
