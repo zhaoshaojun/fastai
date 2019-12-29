@@ -17,4 +17,5 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 - part 1: video lesson 1 to video lesson 7
 - part 2: video lession 8 to video lesson 12
 
+___
 Dec, 2019
