@@ -334,9 +334,16 @@ prediction[0], bias[0]
 
 idxs = np.argsort(contributions[0])
 
+pd.concat(
+    [pd.DataFrame(contributions[0]), 
+     pd.DataFrame(contributions[0][idxs]),
+     pd.DataFrame(idxs)], 
+    axis=1
+)
+
 [o for o in zip(df_keep.columns[idxs], df_valid.iloc[0][idxs], contributions[0][idxs])]
 
-contributions[0].sum()
+contributions[0].sum(), bias[0], contributions[0].sum() + bias[0], prediction[0]
 
 # # Extrapolation
 
@@ -365,14 +372,21 @@ m.oob_score_
 
 fi = rf_feat_importance(m, x); fi[:10]
 
+feats=['age', 'YearMade', 'saleDayofyear']
+
+(X_train[feats]).describe()
+
+(X_valid[feats]).describe()
+
 set_rf_samples(50000)
 
-feats=['SalesID', 'saleElapsed', 'MachineID', 'age', 'YearMade', 'saleDayofyear']
+feats=['SalesID', 'saleElapsed', 'MachineID', 
+       'age', 'YearMade', 'saleDayofyear']
 
 X_train, X_valid = split_vals(df_keep, n_trn)
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, '')
 
 for f in feats:
     df_subs = df_keep.drop(f, axis=1)
@@ -380,7 +394,17 @@ for f in feats:
     m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
     m.fit(X_train, y_train)
     print(f)
-    print_score(m)
+    display(get_scores(m, ''))
+
+# +
+# reset_rf_samples()
+# -
+
+df_subs = df_keep.drop(['SalesID', 'MachineID', 'saleDayofyear'], axis=1)
+X_train, X_valid = split_vals(df_subs, n_trn)
+m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
+m.fit(X_train, y_train)
+get_scores(m, '')
 
 reset_rf_samples()
 
@@ -388,7 +412,7 @@ df_subs = df_keep.drop(['SalesID', 'MachineID', 'saleDayofyear'], axis=1)
 X_train, X_valid = split_vals(df_subs, n_trn)
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, '')
 
 plot_fi(rf_feat_importance(m, X_train));
 
@@ -398,6 +422,25 @@ np.save('tmp/subs_cols.npy', np.array(df_subs.columns))
 
 m = RandomForestRegressor(n_estimators=160, max_features=0.5, n_jobs=-1, oob_score=True)
 # %time m.fit(X_train, y_train)
-print_score(m)
+get_scores(m, "final")
+
+tmp = get_scores(m, "final")
+tmp
+
+results
+
+results = pd.concat([tmp, results])
+results[::-1]
+
+cols = results.columns[:6]
+results[cols].plot.barh(
+    x='config',
+    subplots=True,
+    # rot=90,
+    # ylim=(0,1),
+    # title=['']*4,
+    legend=False,
+    figsize=(8,3*results.shape[0])
+);
 
 
