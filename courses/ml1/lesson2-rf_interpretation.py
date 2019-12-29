@@ -335,9 +335,9 @@ prediction[0], bias[0]
 idxs = np.argsort(contributions[0])
 
 pd.concat(
-    [pd.DataFrame(contributions[0]), 
+    [pd.DataFrame(contributions[0]),
      pd.DataFrame(contributions[0][idxs]),
-     pd.DataFrame(idxs)], 
+     pd.DataFrame(idxs)],
     axis=1
 )
 
@@ -380,7 +380,7 @@ feats=['age', 'YearMade', 'saleDayofyear']
 
 set_rf_samples(50000)
 
-feats=['SalesID', 'saleElapsed', 'MachineID', 
+feats=['SalesID', 'saleElapsed', 'MachineID',
        'age', 'YearMade', 'saleDayofyear']
 
 X_train, X_valid = split_vals(df_keep, n_trn)
@@ -398,13 +398,31 @@ for f in feats:
 
 # +
 # reset_rf_samples()
+
+# +
+# for comparison
 # -
+
+X_train, X_valid = split_vals(df_keep, n_trn)
+m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
+m.fit(X_train, y_train)
+
+tmp = get_scores(m, 'before-remove')
+tmp
+
+results = pd.concat([tmp, results])
+results[::-1]
 
 df_subs = df_keep.drop(['SalesID', 'MachineID', 'saleDayofyear'], axis=1)
 X_train, X_valid = split_vals(df_subs, n_trn)
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-get_scores(m, '')
+
+tmp = get_scores(m, 'after-remove')
+tmp
+
+results = pd.concat([tmp, results])
+results[::-1]
 
 reset_rf_samples()
 
@@ -412,7 +430,12 @@ df_subs = df_keep.drop(['SalesID', 'MachineID', 'saleDayofyear'], axis=1)
 X_train, X_valid = split_vals(df_subs, n_trn)
 m = RandomForestRegressor(n_estimators=40, min_samples_leaf=3, max_features=0.5, n_jobs=-1, oob_score=True)
 m.fit(X_train, y_train)
-get_scores(m, '')
+
+tmp = get_scores(m, 'full')
+tmp
+
+results = pd.concat([tmp, results])
+results[::-1]
 
 plot_fi(rf_feat_importance(m, X_train));
 
@@ -426,8 +449,6 @@ get_scores(m, "final")
 
 tmp = get_scores(m, "final")
 tmp
-
-results
 
 results = pd.concat([tmp, results])
 results[::-1]
