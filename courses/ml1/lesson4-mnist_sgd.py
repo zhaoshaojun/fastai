@@ -43,8 +43,8 @@
 # %matplotlib inline
 
 from fastai.imports import *
-from fastai.torch_imports import *
-from fastai.io import *
+# from fastai.torch_imports import *
+# from fastai.io import *
 
 path = 'data/mnist/'
 
@@ -62,6 +62,8 @@ def load_mnist(filename):
 
 
 # -
+
+from fastai.io import get_data
 
 get_data(URL+FILENAME, path+FILENAME)
 ((x, y), (x_valid, y_valid), _) = load_mnist(path+FILENAME)
