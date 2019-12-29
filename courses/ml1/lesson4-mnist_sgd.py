@@ -63,7 +63,7 @@ def load_mnist(filename):
 
 # -
 
-from fastai.io import get_data
+from fastai.io import *
 
 get_data(URL+FILENAME, path+FILENAME)
 ((x, y), (x_valid, y_valid), _) = load_mnist(path+FILENAME)
