@@ -1,6 +1,7 @@
 from .imports import *
 from .layer_optimizer import *
 from enum import IntEnum
+import cv2
 
 def scale_min(im, targ, interpolation=cv2.INTER_AREA):
     """ Scale the image so that the smallest axis is of size targ.
@@ -67,7 +68,7 @@ def center_crop(im, min_sz=None):
 
 def googlenet_resize(im, targ, min_area_frac, min_aspect_ratio, max_aspect_ratio, flip_hw_p, interpolation=cv2.INTER_AREA):
     """ Randomly crop an image with an aspect ratio and returns a squared resized image of size targ
-    
+
     References:
     1. https://arxiv.org/pdf/1409.4842.pdf
     2. https://arxiv.org/pdf/1802.07888.pdf
@@ -104,18 +105,18 @@ def cutout(im, n_holes, length):
         x1 = int(np.clip(x - length / 2, 0, c))
         x2 = int(np.clip(x + length / 2, 0, c))
         mask[y1: y2, x1: x2] = 0.
-    
+
     mask = mask[:,:,None]
     im = im * mask
     return im
 
-def scale_to(x, ratio, targ): 
+def scale_to(x, ratio, targ):
     '''Calculate dimension of an image during scaling with aspect ratio'''
     return max(math.floor(x*ratio), targ)
 
-def crop(im, r, c, sz): 
+def crop(im, r, c, sz):
     '''
-    crop image into a square of size sz, 
+    crop image into a square of size sz,
     '''
     return im[r:r+sz, c:c+sz]
 
@@ -167,8 +168,8 @@ class Normalize():
 
 class ChannelOrder():
     '''
-    changes image array shape from (h, w, 3) to (3, h, w). 
-    tfm_y decides the transformation done to the y element. 
+    changes image array shape from (h, w, 3) to (3, h, w).
+    tfm_y decides the transformation done to the y element.
     '''
     def __init__(self, tfm_y=TfmType.NO): self.tfm_y=tfm_y
 
@@ -337,7 +338,7 @@ class CropNoop(CoordTransform):
         super().__init__(tfm_y)
     def do_transform(self, x, is_y):
         return x
-    
+
 class NoCrop(CoordTransform):
     """  A transformation that resize to a square image without cropping.
 
@@ -431,7 +432,7 @@ class RandomRotate(CoordTransform):
         self.store.rp = random.random()<self.p
 
     def do_transform(self, x, is_y):
-        if self.store.rp: x = rotate_cv(x, self.store.rdeg, 
+        if self.store.rp: x = rotate_cv(x, self.store.rdeg,
                 mode= self.modes[1] if is_y else self.modes[0],
                 interpolation=cv2.INTER_NEAREST if is_y else cv2.INTER_AREA)
         return x
@@ -478,7 +479,7 @@ class RandomLighting(Transform):
         return x
 
 class RandomRotateZoom(CoordTransform):
-    """ 
+    """
         Selects between a rotate, zoom, stretch, or no transform.
         Arguments:
             deg - maximum degrees of rotation.
@@ -561,7 +562,7 @@ class RandomBlur(Transform):
 class Cutout(Transform):
     """ Randomly masks squares of size length on the image.
     https://arxiv.org/pdf/1708.04552.pdf
-    
+
     Arguments:
     n_holes: number of squares
     length: size of the square
@@ -579,8 +580,8 @@ class Cutout(Transform):
         return cutout(img, self.n_holes, self.length) if self.apply_transform else img
 
 class GoogleNetResize(CoordTransform):
-    """ Randomly crops an image with an aspect ratio and returns a squared resized image of size targ 
-    
+    """ Randomly crops an image with an aspect ratio and returns a squared resized image of size targ
+
     Arguments:
         targ_sz: int
             target size

@@ -185,6 +185,8 @@ plots(x_imgs[:8], titles=y_valid[:8])
 
 # ## Neural Net for Logistic Regression in PyTorch
 
+import cv2
+
 # +
 from fastai.metrics import *
 from fastai.model import *
@@ -202,7 +204,7 @@ net = nn.Sequential(
     nn.ReLU(),
     nn.Linear(100, 10),
     nn.LogSoftmax()
-).cuda()
+)# .cuda()
 
 # Each input is a vector of size `28*28` pixels and our output is of size `10` (since there are 10 digits: 0, 1, ..., 9). 
 #
