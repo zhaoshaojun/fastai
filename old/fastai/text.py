@@ -2,8 +2,8 @@ from .core import *
 from .learner import *
 from .lm_rnn import *
 from torch.utils.data.sampler import Sampler
-import spacy
-from spacy.symbols import ORTH
+# import spacy
+# from spacy.symbols import ORTH
 
 re_tok = re.compile(f'([{string.punctuation}“”¨«»®´·º½¾¿¡§£₤‘’])')
 def tokenize(s): return re_tok.sub(r' \1 ', s).split()
