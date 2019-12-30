@@ -206,6 +206,11 @@ net = nn.Sequential(
     nn.LogSoftmax()
 )# .cuda()
 
+net = nn.Sequential(
+    nn.Linear(28*28, 10),
+    nn.LogSoftmax()
+)# .cuda()
+
 # Each input is a vector of size `28*28` pixels and our output is of size `10` (since there are 10 digits: 0, 1, ..., 9). 
 #
 # We use the output of the final layer to generate our predictions.  Often for classification problems (like MNIST digit classification), the final layer has the same number of outputs as there are classes.  In that case, this is 10: one for each digit from 0 to 9.  These can be converted to comparative probabilities.  For instance, it may be determined that a particular hand-written image is 80% likely to be a 4, 18% likely to be a 9, and 2% likely to be a 3.
