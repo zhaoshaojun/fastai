@@ -19,3 +19,4 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 
 ___
 Dec, 2019
+Shaojun Zhao
