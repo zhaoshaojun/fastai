@@ -284,6 +284,13 @@ preds.shape
 
 # **Question**: Why does our output have length 10 (for each image)?
 
+preds.shape
+
+import pandas as pd
+pd.DataFrame(preds[:5,]).T
+
+plt.pcolor(preds[:5,], edgecolor='k', linewidths=4)
+
 preds.argmax(axis=1)[:5]
 
 preds = preds.argmax(1)
@@ -296,7 +303,6 @@ np.mean(preds == y_valid)
 
 plots(x_imgs[:8], titles=preds[:8])
 
-
 # ## Defining Logistic Regression Ourselves
 
 # Above, we used pytorch's `nn.Linear` to create a linear layer.  This is defined by a matrix multiplication and then an addition (these are also called `affine transformations`).  Let's try defining this ourselves.
@@ -306,6 +312,11 @@ plots(x_imgs[:8], titles=preds[:8])
 # Our PyTorch class needs two things: constructor (says what the parameters are) and a forward method (how to calculate a prediction using those parameters)  The method `forward` describes how the neural net converts inputs to outputs.
 #
 # In PyTorch, the optimizer knows to try to optimize any attribute of type **Parameter**.
+
+torch.randn(3,4)
+
+torch.randn(3,4)/3
+
 
 # +
 def get_weights(*dims): return nn.Parameter(torch.randn(dims)/dims[0])
@@ -328,7 +339,7 @@ class LogReg(nn.Module):
 
 # We create our neural net and the optimizer.  (We will use the same loss and metrics from above).
 
-net2 = LogReg().cuda()
+net2 = LogReg()# .cuda()
 opt=optim.Adam(net2.parameters())
 
 fit(net2, md, n_epochs=1, crit=loss, opt=opt, metrics=metrics)
@@ -337,8 +348,10 @@ dl = iter(md.trn_dl)
 
 xmb,ymb = next(dl)
 
-vxmb = Variable(xmb.cuda())
-vxmb
+xmb.shape, xmb
+
+vxmb = Variable(xmb) # .cuda())
+vxmb.shape, vxmb
 
 preds = net2(vxmb).exp(); preds[:3]
 
@@ -449,6 +462,8 @@ c[None]
 
 c[:,None]
 
+c[None] + c[:,None]
+
 c[None] > c[:,None]
 
 xg,yg = np.ogrid[0:5, 0:5]; xg,yg
@@ -506,6 +521,42 @@ m @ n
 
 (m * n[:,1]).sum(axis=1)
 
+# +
+# my own
+# -
+
+m[0] @ n
+
+m[1] @ n
+
+m[2] @ n
+
+# +
+# my own (2)
+# -
+
+x = np.array([1,2,3]); x
+
+x @ x
+
+A = np.array([[1,2,3],[4,5,6],[7,8,9]]); A
+
+A @ A
+
+A @ x # this is strange
+
+x @ A
+
+A @ A[0]
+
+A[0]
+
+A[0] @ A
+
+A[1] @ A
+
+A[2] @ A
+
 
 # ## Writing Our Own Training Loop
 
@@ -524,7 +575,7 @@ class LogReg(nn.Module):
         x = x @ self.l1_w + self.l1_b 
         return torch.log(softmax(x))
 
-net2 = LogReg().cuda()
+net2 = LogReg()# .cuda()
 opt=optim.Adam(net2.parameters())
 
 fit(net2, md, n_epochs=1, crit=loss, opt=opt, metrics=metrics)
@@ -536,7 +587,7 @@ fit(net2, md, n_epochs=1, crit=loss, opt=opt, metrics=metrics)
 
 # We will use the LogReg class we created, as well as the same loss function, learning rate, and optimizer as before:
 
-net2 = LogReg().cuda()
+net2 = LogReg()# .cuda()
 loss=nn.NLLLoss()
 learning_rate = 1e-3
 optimizer=optim.Adam(net2.parameters(), lr=learning_rate)
@@ -548,11 +599,14 @@ dl = iter(md.trn_dl) # Data loader
 # First, we will do a **forward pass**, which means computing the predicted y by passing x to the model.
 
 xt, yt = next(dl)
-y_pred = net2(Variable(xt).cuda())
+y_pred = net2(Variable(xt)) # .cuda())
 
 # We can check the loss:
 
-l = loss(y_pred, Variable(yt).cuda())
+l = loss(y_pred, Variable(yt)) # .cuda())
+print(l)
+
+l = loss(y_pred, yt) # .cuda())
 print(l)
 
 # We may also be interested in the accuracy.  We don't expect our first predictions to be very good, because the weights of our network were initialized to random values.  Our goal is to see the loss decrease (and the accuracy increase) as we train the network:
@@ -579,10 +633,12 @@ optimizer.step()
 # Now, let's make another set of predictions and check if our loss is lower:
 
 xt, yt = next(dl)
-y_pred = net2(Variable(xt).cuda())
+y_pred = net2(Variable(xt)) # .cuda())
 
-l = loss(y_pred, Variable(yt).cuda())
+l = loss(y_pred, Variable(yt)) # .cuda())
 print(l)
+
+l.item()
 
 # Note that we are using **stochastic** gradient descent, so the loss is not guaranteed to be strictly better each time.  The stochasticity comes from the fact that we are using **mini-batches**; we are just using 64 images to calculate our prediction and update the weights, not the whole dataset.
 
@@ -592,12 +648,13 @@ np.mean(to_np(y_pred).argmax(axis=1) == to_np(yt))
 
 for t in range(100):
     xt, yt = next(dl)
-    y_pred = net2(Variable(xt).cuda())
-    l = loss(y_pred, Variable(yt).cuda())
+    y_pred = net2(Variable(xt)) # .cuda())
+    l = loss(y_pred, Variable(yt)) # .cuda())
     
     if t % 10 == 0:
         accuracy = np.mean(to_np(y_pred).argmax(axis=1) == to_np(yt))
-        print("loss: ", l.data[0], "\t accuracy: ", accuracy)
+        # print("loss: ", l.data[0], "\t accuracy: ", accuracy)
+        print("loss: ", l.item(), "\t accuracy: ", accuracy)
 
     optimizer.zero_grad()
     l.backward()
@@ -612,17 +669,18 @@ def score(x, y):
 
 
 # +
-net2 = LogReg().cuda()
+net2 = LogReg() # .cuda()
 loss=nn.NLLLoss()
 learning_rate = 1e-2
 optimizer=optim.SGD(net2.parameters(), lr=learning_rate)
 
-for epoch in range(1):
+for epoch in range(10):
     losses=[]
     dl = iter(md.trn_dl)
-    for t in range(len(dl)):
+    # for t in range(len(dl)):
+    for t in dl:
         # Forward pass: compute predicted y and loss by passing x to the model.
-        xt, yt = next(dl)
+        xt, yt = t
         y_pred = net2(V(xt))
         l = loss(y_pred, V(yt))
         losses.append(l)
@@ -638,8 +696,8 @@ for epoch in range(1):
         optimizer.step()
     
     val_dl = iter(md.val_dl)
-    val_scores = [score(*next(val_dl)) for i in range(len(val_dl))]
-    print(np.mean(val_scores))
+    val_scores = [score(x, y) for x, y in val_dl]
+    print(epoch, np.mean(val_scores))
 # -
 
 # ## Stochastic Gradient Descent
@@ -649,18 +707,18 @@ for epoch in range(1):
 # Now, instead of using the optimizer, we will do the optimization ourselves!
 
 # +
-net2 = LogReg().cuda()
+net2 = LogReg() # .cuda()
 loss_fn=nn.NLLLoss()
 lr = 1e-2
 w,b = net2.l1_w,net2.l1_b
 
-for epoch in range(1):
+for epoch in range(10):
     losses=[]
     dl = iter(md.trn_dl)
-    for t in range(len(dl)):
-        xt, yt = next(dl)
+    for t in dl:
+        xt, yt = t
         y_pred = net2(V(xt))
-        l = loss(y_pred, Variable(yt).cuda())
+        l = loss(y_pred, Variable(yt)) # .cuda())
         losses.append(loss)
 
         # Backward pass: compute gradient of the loss with respect to model parameters
@@ -672,8 +730,8 @@ for epoch in range(1):
         b.grad.data.zero_()   
 
     val_dl = iter(md.val_dl)
-    val_scores = [score(*next(val_dl)) for i in range(len(val_dl))]
-    print(np.mean(val_scores))
+    val_scores = [score(x, y) for x, y in val_dl]
+    print(epoch, np.mean(val_scores))
 # -
 
 
