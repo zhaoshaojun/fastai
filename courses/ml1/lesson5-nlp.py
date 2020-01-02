@@ -77,21 +77,6 @@ trn_term_doc[0,24540]
 
 trn_term_doc[0,5000]
 
-len(vocab), vocab[-1]
-
-index = 0
-for i in range(len(vocab)):
-    f = trn_term_doc[0, i]
-    if f > 0:
-        index += 1
-        print(index, vocab[i], f)
-
-y==1
-
-trn_term_doc[y==1]
-
-trn_term_doc[y==0]
-
 
 # ## Naive Bayes
 
@@ -113,16 +98,6 @@ y=trn_y
 r = np.log(pr(1)/pr(0))
 b = np.log((y==1).mean() / (y==0).mean())
 # -
-
-b
-
-x.shape, type(vocab)
-
-type(r), r.shape,
-
-r[:,:5]
-
-x
 
 # Here is the formula for Naive Bayes.
 
