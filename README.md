@@ -25,8 +25,8 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 8. video 8:
 ## part 2 (video lession 8 to 12): 
 1. video 9: SGD on MNIST dataset
-2. video 10: first half, SGD on MNIST dataset; second half, NLP (sentiment analysis, NB and LR)
-3. video 11: first half, continue NLP (sentiment analysis, NB and LR); second half, Rossman project (Embeddings)
+2. video 10: first half, SGD on MNIST dataset; second half, sentiment analysis in NLP using NB and LR
+3. video 11: first half, continue sentiment analysis in NLP using NB and LR; second half, Rossman project (Embeddings)
 4. video 12: first half, Rossman project (Embeddings); second half, ethical issues
 
 ___
