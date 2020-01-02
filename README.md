@@ -14,10 +14,20 @@ Much of the fastai ML course is a little outdated. I have made minimal chances i
 Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone this repo, and install dependecies when you found they are missing. You do not have to install fastai.
 
 # Note to myself
-1. part 1: 
-  1. random forests. See video lesson 1 to video lesson 7.
-2. part 2: 
-  2. neural networks. See video lession 8 to video lesson 12.
+## part 1 (video lession 1 to 7): 
+1. video 1:
+2. video 2:
+3. video 3:
+4. video 4:
+5. video 5:
+6. video 6:
+7. video 7:
+8. video 8:
+## part 2 (video lession 8 to 12): 
+1. video 9: 
+2. video 10: first half SGD, second half NLP (sentiment analysis, NB and LR)
+3. video 11:
+4. video 12
 
 ___
 Dec, 2019
