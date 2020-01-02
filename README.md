@@ -15,9 +15,9 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 
 # Note to myself
 1. part 1: 
-..1. random forests. See video lesson 1 to video lesson 7.
+  1. random forests. See video lesson 1 to video lesson 7.
 2. part 2: 
-..2. neural networks. See video lession 8 to video lesson 12.
+  2. neural networks. See video lession 8 to video lesson 12.
 
 ___
 Dec, 2019
