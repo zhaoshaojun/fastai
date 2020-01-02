@@ -10,6 +10,8 @@ from fastai.nlp import *
 from sklearn.linear_model import LogisticRegression
 # -
 
+LogisticRegression
+
 # ## IMDB dataset and the sentiment classification task
 
 # The [large movie review dataset](http://ai.stanford.edu/~amaas/data/sentiment/) contains a collection of 50,000 reviews from IMDB. The dataset contains an even number of positive and negative reviews. The authors considered only highly polarized reviews. A negative review has a score ≤ 4 out of 10, and a positive review has a score ≥ 7 out of 10. Neutral reviews are not included in the dataset. The dataset is divided into training and test sets. The training set is the same 25,000 labeled reviews.
@@ -61,15 +63,13 @@ trn_term_doc
 
 trn_term_doc[0]
 
-vocab = veczr.get_feature_names(); vocab[5000:5005]
-
-w0 = set([o.lower() for o in trn[0].split(' ')]); w0
+len(trn[0].split(' '))
 
 trn[0].split(' ')
 
-len(w0)
+vocab = veczr.get_feature_names(); vocab[5000:5005]
 
-x = trn_term_doc[0]
+len(vocab)
 
 veczr.vocabulary_['film']
 
@@ -77,7 +77,7 @@ trn_term_doc[0,24540]
 
 trn_term_doc[0,5000]
 
-len(vocab), vocab[-1]
+len(vocab), vocab[-1], vocab[0]
 
 index = 0
 for i in range(len(vocab)):
@@ -86,11 +86,13 @@ for i in range(len(vocab)):
         index += 1
         print(index, vocab[i], f)
 
-y==1
+trn_y==1
 
-trn_term_doc[y==1]
+len(trn_y), (trn_y==1).sum(), (trn_y==0).sum()
 
-trn_term_doc[y==0]
+trn_term_doc[trn_y==1]
+
+trn_term_doc[trn_y==0]
 
 
 # ## Naive Bayes
@@ -103,16 +105,26 @@ trn_term_doc[y==0]
 
 def pr(y_i):
     p = x[y==y_i].sum(0)
-    return (p+1) / ((y==y_i).sum()+1)
+    return p+1
 
+
+pr(1)
+
+pr(1).sum()
 
 # +
 x=trn_term_doc
 y=trn_y
 
-r = np.log(pr(1)/pr(0))
+p = pr(1)/pr(1).sum()
+q = pr(0)/pr(0).sum()
+r = np.log(p/q)
 b = np.log((y==1).mean() / (y==0).mean())
 # -
+
+p.sum()
+
+q.sum()
 
 b
 
@@ -144,6 +156,8 @@ preds = pre_preds.T>0
 # ### Logistic regression
 
 # Here is how we can fit logistic regression where the features are the unigrams.
+
+LogisticRegression
 
 m = LogisticRegression(C=1e8, dual=False)
 m.fit(x, y)
@@ -185,7 +199,9 @@ y=trn_y
 x=trn_term_doc.sign()
 val_x = val_term_doc.sign()
 
-r = np.log(pr(1) / pr(0))
+p = pr(1)/pr(1).sum()
+q = pr(0)/pr(0).sum()
+r = np.log(p/q)
 b = np.log((y==1).mean() / (y==0).mean())
 
 # Here we fit regularized logistic regression where the features are the trigrams.
