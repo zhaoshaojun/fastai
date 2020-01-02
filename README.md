@@ -26,7 +26,7 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 ## part 2 (video lession 8 to 12): 
 1. video 9: 
 2. video 10: first half SGD, second half NLP (sentiment analysis, NB and LR)
-3. video 11:
+3. video 11: Contineu NLP (sentiment analysis, NB and LR)
 4. video 12
 
 ___
