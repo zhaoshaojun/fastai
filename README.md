@@ -25,8 +25,8 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 8. video 8:
 ## part 2 (video lession 8 to 12): 
 1. video 9: 
-2. video 10: first half SGD, second half NLP (sentiment analysis, NB and LR)
-3. video 11: Continue NLP (sentiment analysis, NB and LR)
+2. video 10: first half, SGD; second half, NLP (sentiment analysis, NB and LR)
+3. video 11: first half, continue NLP (sentiment analysis, NB and LR); second half, Rossman project
 4. video 12
 
 ___
