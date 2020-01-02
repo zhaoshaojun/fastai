@@ -108,10 +108,6 @@ def pr(y_i):
     return p+1
 
 
-pr(1)
-
-pr(1).sum()
-
 # +
 x=trn_term_doc
 y=trn_y
@@ -121,6 +117,10 @@ q = pr(0)/pr(0).sum()
 r = np.log(p/q)
 b = np.log((y==1).mean() / (y==0).mean())
 # -
+
+pr(1)
+
+pr(1).sum()
 
 p.sum()
 
@@ -137,6 +137,16 @@ r[:,:5]
 x
 
 # Here is the formula for Naive Bayes.
+
+val_term_doc.shape
+
+r.shape
+
+(val_term_doc @ r.T).shape
+
+val_term_doc @ r.T
+
+val_y
 
 pre_preds = val_term_doc @ r.T + b
 preds = pre_preds.T>0
@@ -171,12 +181,12 @@ preds = m.predict(val_term_doc.sign())
 
 # ...and the regularized version
 
-m = LogisticRegression(C=0.1, dual=False)
+m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
 m.fit(x, y)
 preds = m.predict(val_term_doc)
 (preds==val_y).mean()
 
-m = LogisticRegression(C=0.1, dual=False)
+m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
 m.fit(trn_term_doc.sign(), y)
 preds = m.predict(val_term_doc.sign())
 (preds==val_y).mean()
@@ -207,7 +217,7 @@ b = np.log((y==1).mean() / (y==0).mean())
 # Here we fit regularized logistic regression where the features are the trigrams.
 
 # +
-m = LogisticRegression(C=0.1, dual=False)
+m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
 m.fit(x, y);
 
 preds = m.predict(val_x)
@@ -222,9 +232,11 @@ np.exp(r)
 
 # Here we fit regularized logistic regression where the features are the trigrams' log-count ratios.
 
+# ## Let's help the LR to learn
+
 # +
 x_nb = x.multiply(r)
-m = LogisticRegression(dual=False, C=0.1)
+m = LogisticRegression(dual=False, C=0.1, max_iter=1000)
 m.fit(x_nb, y);
 
 val_x_nb = val_x.multiply(r)
@@ -232,12 +244,26 @@ preds = m.predict(val_x_nb)
 (preds.T==val_y).mean()
 # -
 
+for c in [-5, -4, -3, -2, -1, 0, 1, 2, 3]:
+    C = 10**c
+    x_nb = x.multiply(r)
+    m = LogisticRegression(dual=False, C=C, max_iter=1000)
+    m.fit(x_nb, y);
+
+    val_x_nb = val_x.multiply(r)
+    preds = m.predict(val_x_nb)
+    print(c, (preds.T==val_y).mean())
+
 # ## fastai NBSVM++
 
 sl=2000
 
 # Here is how we get a model from a bag of words
-md = TextClassifierData.from_bow(trn_term_doc, trn_y, val_term_doc, val_y, sl)
+md = TextClassifierData.from_bow(
+    trn_term_doc, trn_y, val_term_doc, val_y, sl
+)
+
+??md.dotprod_nb_learner
 
 learner = md.dotprod_nb_learner()
 learner.fit(0.02, 1, wds=1e-6, cycle_len=1)
@@ -246,8 +272,22 @@ learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
 
 learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
 
+# ## My Version
+
+sl=2000
+
+# Here is how we get a model from a bag of words
+md2 = TextClassifierData.from_bow(
+    trn_term_doc, trn_y, val_term_doc, val_y, sl
+)
+
+learner2 = md2.shaojun_learner()
+learner2.fit(0.02, 1, wds=1e-6, cycle_len=1)
+
+learner2.fit(0.02, 2, wds=1e-6, cycle_len=1)
+
+learner2.fit(0.02, 2, wds=1e-6, cycle_len=1)
+
 # ## References
 
 # * Baselines and Bigrams: Simple, Good Sentiment and Topic Classification. Sida Wang and Christopher D. Manning [pdf](https://www.aclweb.org/anthology/P12-2018)
-
-

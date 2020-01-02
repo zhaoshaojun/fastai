@@ -25,6 +25,20 @@ class DotProdNB(nn.Module):
         x = ((w+self.w_adj)*r/self.r_adj).sum(1)
         return F.softmax(x)
 
+class Shaojun(nn.Module):
+    def __init__(self, nf, ny, w_adj=0.4, r_adj=10):
+        super().__init__()
+        self.w_adj,self.r_adj = w_adj,r_adj
+        self.w = nn.Embedding(nf+1, 1, padding_idx=0)
+        self.w.weight.data.uniform_(-0.1,0.1)
+        self.r = nn.Embedding(nf+1, ny)
+
+    def forward(self, feat_idx, feat_cnt, sz):
+        wx = self.w(feat_idx)
+        r = self.r(feat_idx)
+        x = ((wx + self.w_adj) * r / self.r_adj).sum(1)
+        return F.softmax(x)
+
 class SimpleNB(nn.Module):
     def __init__(self, nf, ny):
         super().__init__()
@@ -96,6 +110,7 @@ class TextClassifierData(ModelData):
         return BOW_Learner(self, model, metrics=[accuracy_thresh(0.5)], opt_fn=optim.Adam)
 
     def dotprod_nb_learner(self, **kwargs): return self.get_model(DotProdNB, **kwargs)
+    def shaojun_learner(self, **kwargs): return self.get_model(Shaojun, **kwargs)
     def nb_learner(self, **kwargs): return self.get_model(SimpleNB, **kwargs)
 
     @classmethod
