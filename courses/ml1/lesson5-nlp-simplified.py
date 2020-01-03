@@ -10,7 +10,7 @@ from fastai.nlp import *
 from sklearn.linear_model import LogisticRegression
 # -
 
-LogisticRegression
+# ## Video 10, 1:02:00 IMDB
 
 # ## IMDB dataset and the sentiment classification task
 
@@ -163,6 +163,8 @@ preds = pre_preds.T>0
 (preds==val_y).mean()
 # -
 
+# ## Video 10, 1:30:20 IMDB
+
 # ### Logistic regression
 
 # Here is how we can fit logistic regression where the features are the unigrams.
@@ -190,6 +192,8 @@ m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
 m.fit(trn_term_doc.sign(), y)
 preds = m.predict(val_term_doc.sign())
 (preds==val_y).mean()
+
+# ## Video 11, 0:21:00 IMDB
 
 # ### Trigram with NB features
 
@@ -232,6 +236,8 @@ np.exp(r)
 
 # Here we fit regularized logistic regression where the features are the trigrams' log-count ratios.
 
+# ## Video 11, 0:25:13 IMDB
+
 # ## Let's help the LR to learn
 
 # +
@@ -254,6 +260,8 @@ for c in [-5, -4, -3, -2, -1, 0, 1, 2, 3]:
     preds = m.predict(val_x_nb)
     print(c, (preds.T==val_y).mean())
 
+# ## Video 11, 0:44:00 - 1:15:30 IMDB
+
 # ## fastai NBSVM++
 
 sl=2000
@@ -263,14 +271,18 @@ md = TextClassifierData.from_bow(
     trn_term_doc, trn_y, val_term_doc, val_y, sl
 )
 
-??md.dotprod_nb_learner
-
 learner = md.dotprod_nb_learner()
 learner.fit(0.02, 1, wds=1e-6, cycle_len=1)
 
 learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
 
 learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
+
+# ## Video 11, 1:15:30
+
+# +
+# Roseman store
+# -
 
 # ## My Version
 
