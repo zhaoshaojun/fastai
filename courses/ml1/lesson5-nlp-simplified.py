@@ -278,10 +278,24 @@ learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
 
 learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
 
-# ## Video 11, 1:15:30
+# ## Video 11, 1:15:30 - 1:36:06 (end)
+
+# ## Video 12, 0:0:0 - 0:44:20
 
 # +
-# Roseman store
+# Rossman store
+# -
+
+# # Video 12, 0:44:20 - 1:03:14
+
+# +
+# review the whole course
+# -
+
+# ## Video 1:03:14 - 1:41:41 (end)
+
+# +
+# Ethical issues
 # -
 
 # ## My Version
