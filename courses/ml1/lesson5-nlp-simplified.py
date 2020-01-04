@@ -193,6 +193,12 @@ m.fit(trn_term_doc.sign(), y)
 preds = m.predict(val_term_doc.sign())
 (preds==val_y).mean()
 
+# ## Video 11, 0:0:0 - 0:21:00
+
+# +
+# Reive SGD
+# -
+
 # ## Video 11, 0:21:00 IMDB
 
 # ### Trigram with NB features
@@ -286,7 +292,7 @@ learner.fit(0.02, 2, wds=1e-6, cycle_len=1)
 # Rossman store
 # -
 
-# # Video 12, 0:44:20 - 1:03:14
+# ## Video 12, 0:44:20 - 1:03:14
 
 # +
 # review the whole course
