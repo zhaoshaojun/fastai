@@ -69,7 +69,7 @@ pre_preds
 preds = pre_preds.T[0] > pre_preds.T[1]
 (preds==val_y).mean()
 
-# ## Logistic regression
+# ## Logistic regression (sklearn)
 
 # Here is how we can fit logistic regression where the features are the unigrams.
 
@@ -87,8 +87,10 @@ m.fit(x, y)
 preds = m.predict(val_term_doc)
 (preds==val_y).mean()
 
+# ## Logistic regression (PyTorch)
+
+
+
 # ## Deep NB
-
-
 
 
