@@ -118,9 +118,32 @@ r = np.log(p/q)
 b = np.log((y==1).mean() / (y==0).mean())
 # -
 
+x.shape
+
+freq = x.sum(0)
+freq
+
+freq.shape
+
 pr(1)
 
+pr(1).shape
+
 pr(1).sum()
+
+pr(0)
+
+pr(0).shape
+
+pr(0).sum()
+
+pr(0).sum() + pr(1).sum()
+
+(pr(0).sum() + pr(1).sum() - freq.sum()) / 2
+
+freq = pr(0) + pr(1)
+
+freq.sum()
 
 p.sum()
 
@@ -152,16 +175,20 @@ pre_preds = val_term_doc @ r.T + b
 preds = pre_preds.T>0
 (preds==val_y).mean()
 
-# ...and binarized Naive Bayes.
+r.shape
 
-# +
-x=trn_term_doc.sign()
-r = np.log(pr(1)/pr(0))
+p.shape
 
-pre_preds = val_term_doc.sign() @ r.T + b
-preds = pre_preds.T>0
+q.shape
+
+np.stack([p, q]).shape
+
+pre_preds = val_term_doc @ np.stack([np.log(p), np.log(q)]).T + b
+
+pre_preds
+
+preds = pre_preds.T[0] > pre_preds.T[1]
 (preds==val_y).mean()
-# -
 
 # ## Video 10, 1:30:20 IMDB
 
@@ -171,27 +198,29 @@ preds = pre_preds.T>0
 
 LogisticRegression
 
-m = LogisticRegression(C=1e8, dual=False)
+m = LogisticRegression(C=1e8, dual=False, max_iter=1000)
 m.fit(x, y)
 preds = m.predict(val_term_doc)
-(preds==val_y).mean()
-
-m = LogisticRegression(C=1e8, dual=False)
-m.fit(trn_term_doc.sign(), y)
-preds = m.predict(val_term_doc.sign())
 (preds==val_y).mean()
 
 # ...and the regularized version
 
-m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
+m = LogisticRegression(C=0.01, dual=False, max_iter=1000)
 m.fit(x, y)
 preds = m.predict(val_term_doc)
 (preds==val_y).mean()
 
-m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
-m.fit(trn_term_doc.sign(), y)
-preds = m.predict(val_term_doc.sign())
-(preds==val_y).mean()
+# ## My Version
+
+
+
+
+
+
+
+
+
+
 
 # ## Video 11, 0:0:0 - 0:21:00
 
