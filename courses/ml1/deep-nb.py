@@ -247,7 +247,7 @@ sl=val_term_doc.shape[1]
 md = TextClassifierData.from_bow(
     trn_term_doc, trn_y,
     val_term_doc, val_y,
-    2000,
+    100,
 )
 
 # +
@@ -405,10 +405,6 @@ for t in tqdm(md.val_ds, total=len(md.val_ds)):
     val_scores.append(score(x,y))
 np.mean(to_np(val_scores))
 
-val_scores = [score(x, y) for x, _a, _b, y in md.val_ds]
-l3 = np.mean(to_np(val_scores))
-val_list.append(l3)
-
 print(f'lr={lr}')
 for epoch in range(10):
     print('')
@@ -434,39 +430,23 @@ for epoch in range(10):
         # net2.b.grad.data.zero_()   
 
     if epoch % 1 == 0:
-        train_scores = [loss(net2(V(x)), V(y))
-                      for x, _a, _b, y in md.trn_ds]
+        train_scores = []
+        for t in tqdm(md.trn_ds, total=len(md.trn_ds)):
+            x, _a, _b, y = t
+            train_scores.append(loss(net2(V(x)), V(y)))
         l2 = np.mean(to_np(train_scores))
         train_list.append(l2)
-
-        if False:
-            val_scores = [loss(net2(V(x), V(y)))
-                      for x, _a, _b, y in md.val_ds]        
-        val_scores = [score(x, y) for x, _a, _b, y in md.val_ds]
+        
+        val_scores = []
+        for t in tqdm(md.val_ds, total=len(md.val_ds)):
+            x, _a, _b, y = t
+            val_scores.append(score(x,y))
         l3 = np.mean(to_np(val_scores))
         val_list.append(l3)
 
         # print(f'epoch={epoch}, score={np.mean(val_scores)}')
         print(f'epoch={epoch}, score={l2}')
         print(f'epoch={epoch}, score={l3}')
-
-t
-
-xt = t[0]
-
-xt
-
-feat_idx = xt
-
-idx = feat_idx - 1
-idx
-
-idx2 = [a for a in idx if a >= 0]
-
-type(xt), type(idx2)
-
-yy = np.array(idx2)
-type(yy), yy
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -476,46 +456,6 @@ df = pd.DataFrame({'train':train_list, 'valid':val_list})
 df.plot(subplots=True)
 
 plt.plot(loss_list)
-
-# +
-# net2.r
-# -
-
-net2.w
-
-val_dl = iter(md.val_dl)
-val_scores = [score(_b, y) for x, _a, _b, y in val_dl]
-
-np.mean(val_scores)
-
-val_scores
-
-val_dl = iter(md.val_dl)
-
-x, _a, _b, y = next(val_dl)
-
-
-
-score(x, y)
-
-w = net2.w(x)
-
-# +
-# r = net2.r(x)
-# -
-
-x = ((w+net2.w_adj)*r/net2.r_adj).sum(1)
-
-x
-
-result = F.softmax(x)
-result
-
-result.shape
-
-to_np(result).argmax(axis=1) == to_np(y).argmax(axis=1)
-
-to_np(y)
 
 # ## Deep NB
 
