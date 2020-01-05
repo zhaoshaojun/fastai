@@ -8,6 +8,9 @@
 tmp*
 tags
 
+.data/
+courses/ml1/.vector_cache/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
