@@ -247,7 +247,7 @@ sl=val_term_doc.shape[1]
 md = TextClassifierData.from_bow(
     trn_term_doc, trn_y,
     val_term_doc, val_y,
-    200,
+    2000,
 )
 
 # +
@@ -377,7 +377,7 @@ def score2(x, y):
 
 def score(x, y):
     # print(f'x={x}, y={y}')
-    y_pred = to_np(net2(V(x))).sum() > 0
+    y_pred = to_np(net2(V(x))).sum() >= 0
     # print(f'y_pred={y_pred}')
     y2 = np.argmax(y)
     # print(f'y2={y2}')
@@ -389,19 +389,28 @@ from tqdm import notebook
 
 datetime.now()
 
-# +
 net2 = MySimpleNB(len(vocab), 1)
 # loss = nn.NLLLoss()
 # loss = torch.nn.CrossEntropyLoss()
 loss = binary_loss
 # lr = 1e-0
-lr = 1e-9
+lr = 1e-3
 train_list = []
 val_list = []
 loss_list = []
 
+val_scores = []
+for t in tqdm(md.val_ds, total=len(md.val_ds)):
+    x, _a, _b, y = t
+    val_scores.append(score(x,y))
+np.mean(to_np(val_scores))
+
+val_scores = [score(x, y) for x, _a, _b, y in md.val_ds]
+l3 = np.mean(to_np(val_scores))
+val_list.append(l3)
+
 print(f'lr={lr}')
-for epoch in range(2):
+for epoch in range(10):
     print('')
     print('epoch:', epoch)
     print('time:', datetime.now())
@@ -440,7 +449,6 @@ for epoch in range(2):
         # print(f'epoch={epoch}, score={np.mean(val_scores)}')
         print(f'epoch={epoch}, score={l2}')
         print(f'epoch={epoch}, score={l3}')
-# -
 
 t
 
