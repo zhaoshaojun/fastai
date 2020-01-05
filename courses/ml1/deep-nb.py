@@ -128,6 +128,14 @@ pre_preds
 preds = pre_preds.T[0] > pre_preds.T[1]
 (preds==val_y).mean()
 
+type(val_term_doc)
+
+val_term_doc[0]
+
+xx = val_term_doc[0]
+
+[vocab[index] for index, i in enumerate(xx.toarray()[0]) if i > 0]
+
 # ## Logistic regression (sklearn)
 
 # Here is how we can fit logistic regression where the features are the unigrams.
@@ -155,23 +163,26 @@ from fastai.dataset import *
 from fastai.nlp import *
 
 import torch.nn as nn
+
+
 # -
-
-r.tolist()
-
 
 class MySimpleNB(nn.Module):
     def __init__(self, nf, ny):
         super().__init__()
-        self.w = nn.Embedding(nf+1, ny, padding_idx=0)
+        self.w = nn.Embedding(nf, ny)
         # self.w = nn.Embedding(nf+1, ny)
         # self.w.weight.data.uniform_(-1, 1)
-        # self.w.weight.data = torch.FloatTensor([0] + r.tolist()[0])
+        self.w.weight.data = torch.FloatTensor(r.tolist()[0])
+        self.w.weight.data = self.w.weight.data.reshape(-1, 1)
         # self.r = nn.Embedding(nf, ny)
         
     def forward(self, feat_idx):
-        self.w.weight.data[0] = 0
-        v = self.w(feat_idx)
+        # self.w.weight.data[0] = 0
+        idx = feat_idx - 1
+        idx2 = [a for a in idx if a >= 0]
+        idx3 = np.array(idx2)
+        v = self.w(V(idx3))
         # r = self.r(feat_idx)
         # x = ((w+self.w_adj)*r/self.r_adj).sum(1)
         # x = w*r
@@ -198,21 +209,24 @@ len(vocab)
 
 net3 = MySimpleNB(len(vocab), 1)
 
+net2.w.weight.data.shape
+
 r.shape
 
-torch.FloatTensor([0] + r.tolist()[0])
+xx = torch.FloatTensor([0] + r.tolist()[0]).reshape(-1, 1)
+
+xx.shape
 
 t
+
+for xx in t[0]:
+    print(vocab[xx-1])
 
 net3.w
 
 net3.w.weight.data[0]
 
 net3.w.weight.data.shape
-
-net3.w(torch.LongTensor([[0,1,2,3,4],[0,4,3,2,1]]))
-
-net3.w(torch.LongTensor([3]))
 
 
 
@@ -233,7 +247,7 @@ sl=val_term_doc.shape[1]
 md = TextClassifierData.from_bow(
     trn_term_doc, trn_y,
     val_term_doc, val_y,
-    20,
+    200,
 )
 
 # +
@@ -265,7 +279,7 @@ xt.shape, len(vocab)
 
 xt.shape
 
-xt = xt.reshape(1, 20)
+xt = xt.reshape(1, 200)
 
 xt.shape
 
@@ -285,15 +299,19 @@ xt.shape
 
 for index, idx in enumerate(to_np(xt[0])):
     if idx:
-        print(vocab[idx])
+        print(vocab[idx-1])
 
 vocab[0], len(vocab)
+
+xt
 
 net4.w(V(xt)).sum()
 
 xt.shape
 
-y_pred = net4(V(xt))
+xt.shape
+
+y_pred = net4(V(xt[0]))
 print(y_pred)
 l = binary_loss(y_pred, yt)
 
@@ -377,13 +395,13 @@ net2 = MySimpleNB(len(vocab), 1)
 # loss = torch.nn.CrossEntropyLoss()
 loss = binary_loss
 # lr = 1e-0
-lr = 0.0001
+lr = 1e-9
 train_list = []
 val_list = []
 loss_list = []
 
 print(f'lr={lr}')
-for epoch in range(3):
+for epoch in range(2):
     print('')
     print('epoch:', epoch)
     print('time:', datetime.now())
@@ -424,45 +442,23 @@ for epoch in range(3):
         print(f'epoch={epoch}, score={l3}')
 # -
 
-t = md.trn_ds[0]
-
-xt, _a, _b, yt = t
-
 t
 
-xt.shape, y_pred
+xt = t[0]
 
-y_pred = net2(V(xt))
-y_pred
+xt
 
-yt
+feat_idx = xt
 
-l = loss(y_pred, yt)
-l
+idx = feat_idx - 1
+idx
 
-l.backward()
+idx2 = [a for a in idx if a >= 0]
 
-# +
-# l = loss(yt, y_pred)
-loss_list.append(l)
-# print(f'{index}, {l}, {datetime.now().time()}')
+type(xt), type(idx2)
 
-# Backward pass: 
-# compute gradient of the loss with respect to 
-# model parameters
-l.backward()
-net2.w.weight.data -= net2.w.weight.grad.data * lr
-# net2.b.data -= net2.b.grad.data * lr
-
-net2.w.weight.grad.data.zero_()
-# net2.b.grad.data.zero_()   
-# -
-
-net2.w(V(xt)).sum(1)
-
-net2(V(xt))
-
-net2.w(V(xt))
+yy = np.array(idx2)
+type(yy), yy
 
 import matplotlib.pyplot as plt
 import pandas as pd
