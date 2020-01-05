@@ -117,8 +117,8 @@ class TextClassifierData(ModelData):
     def from_bow(cls, trn_bow, trn_y, val_bow, val_y, sl):
         trn_ds = BOW_Dataset(trn_bow, trn_y, sl)
         val_ds = BOW_Dataset(val_bow, val_y, sl)
-        trn_dl = DataLoader(trn_ds, 4, True)
-        val_dl = DataLoader(val_ds, 4, False)
+        trn_dl = DataLoader(trn_ds, 64, True)
+        val_dl = DataLoader(val_ds, 64, False)
         return cls('.', trn_dl, val_dl)
 
 
