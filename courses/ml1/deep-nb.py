@@ -53,13 +53,13 @@ def sample(data1, label1, data2, label2, n):
     return data, label
 
 
-# +
-# trn, trn_y = sample(trn1, trn1_y, trn2, trn2_y, 64*10)
-# val, val_y = sample(val1, val1_y, val2, val2_y, 64*20)
-# -
+trn, trn_y = sample(trn1, trn1_y, trn2, trn2_y, 64*10)
+val, val_y = sample(val1, val1_y, val2, val2_y, 64*20)
 
-trn,trn_y = texts_labels_from_folders(f'{PATH}train',names)
-val,val_y = texts_labels_from_folders(f'{PATH}test',names)
+# +
+# trn,trn_y = texts_labels_from_folders(f'{PATH}train',names)
+# val,val_y = texts_labels_from_folders(f'{PATH}test',names)
+# -
 
 # ## create vectors and vocab
 
@@ -134,7 +134,15 @@ val_term_doc[0]
 
 xx = val_term_doc[0]
 
+xx.toarray().shape
+
 [vocab[index] for index, i in enumerate(xx.toarray()[0]) if i > 0]
+
+total = 0
+for index, i in enumerate(xx.toarray()[0]):
+    if i:
+        total += 1
+total
 
 # ## Logistic regression (sklearn)
 
@@ -149,7 +157,7 @@ preds = m.predict(val_term_doc)
 
 # ...and the regularized version
 
-m = LogisticRegression(C=0.1, dual=False, max_iter=1000)
+m = LogisticRegression(C=1.0, dual=False, max_iter=1000)
 m.fit(x, y)
 preds = m.predict(val_term_doc)
 (preds==val_y).mean()
@@ -209,36 +217,9 @@ len(vocab)
 
 net3 = MySimpleNB(len(vocab), 1)
 
-net2.w.weight.data.shape
-
-r.shape
-
-xx = torch.FloatTensor([0] + r.tolist()[0]).reshape(-1, 1)
-
-xx.shape
-
-t
-
-for xx in t[0]:
-    print(vocab[xx-1])
-
-net3.w
-
-net3.w.weight.data[0]
-
 net3.w.weight.data.shape
 
-
-
-embedding = nn.Embedding(10, 1)
-
-input = torch.LongTensor([[1,2,4,0],[4,3,2,9]])
-
-embedding(input)
-
-embedding(input).sum(1)
-
-
+r.shape
 
 sl=val_term_doc.shape[1]
 sl
@@ -256,7 +237,7 @@ md = TextClassifierData.from_bow(
 
 trn_term_doc.shape
 
-i=0
+ii=0
 
 net4 = MySimpleNB(len(vocab), 1)
 # loss = nn.NLLLoss()
@@ -279,10 +260,6 @@ xt.shape, len(vocab)
 
 xt.shape
 
-xt = xt.reshape(1, 200)
-
-xt.shape
-
 vocab[18178], len(vocab)
 
 _a
@@ -297,7 +274,7 @@ md.trn_ds[ii]
 
 xt.shape
 
-for index, idx in enumerate(to_np(xt[0])):
+for index, idx in enumerate(to_np(xt)):
     if idx:
         print(vocab[idx-1])
 
@@ -311,7 +288,7 @@ xt.shape
 
 xt.shape
 
-y_pred = net4(V(xt[0]))
+y_pred = net4(V(xt))
 print(y_pred)
 l = binary_loss(y_pred, yt)
 
@@ -394,9 +371,10 @@ net2 = MySimpleNB(len(vocab), 1)
 # loss = torch.nn.CrossEntropyLoss()
 loss = binary_loss
 # lr = 1e-0
-lr = 1e-3
-train_list = []
-val_list = []
+lr = 1e-2
+train_loss_list = []
+val_loss_list = []
+val_acc_list= []
 loss_list = []
 
 val_scores = []
@@ -404,6 +382,8 @@ for t in tqdm(md.val_ds, total=len(md.val_ds)):
     x, _a, _b, y = t
     val_scores.append(score(x,y))
 np.mean(to_np(val_scores))
+
+len(md.trn_dl)
 
 print(f'lr={lr}')
 for epoch in range(10):
@@ -435,23 +415,38 @@ for epoch in range(10):
             x, _a, _b, y = t
             train_scores.append(loss(net2(V(x)), V(y)))
         l2 = np.mean(to_np(train_scores))
-        train_list.append(l2)
-        
+        train_loss_list.append(l2)
+
+        val_scores = []
+        for t in tqdm(md.val_ds, total=len(md.val_ds)):
+            x, _a, _b, y = t
+            train_scores.append(loss(net2(V(x)), V(y)))
+        l3 = np.mean(to_np(train_scores))
+        val_loss_list.append(l3)
+                
         val_scores = []
         for t in tqdm(md.val_ds, total=len(md.val_ds)):
             x, _a, _b, y = t
             val_scores.append(score(x,y))
-        l3 = np.mean(to_np(val_scores))
-        val_list.append(l3)
+        l4 = np.mean(to_np(val_scores))
+        val_acc_list.append(l4)
 
         # print(f'epoch={epoch}, score={np.mean(val_scores)}')
         print(f'epoch={epoch}, score={l2}')
         print(f'epoch={epoch}, score={l3}')
+        print(f'epoch={epoch}, score={l4}')
+
+
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-df = pd.DataFrame({'train':train_list, 'valid':val_list})
+length=20
+df = pd.DataFrame({
+    'train':train_loss_list[:length], 
+    'valid':val_loss_list[:length],
+    'valid_acc':val_acc_list[:length]
+})
 
 df.plot(subplots=True)
 
