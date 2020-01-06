@@ -168,40 +168,6 @@ preds = m.predict(val_term_doc)
 
 # ## Logistic regression (PyTorch)
 
-type(r), r.shape
-
-FloatTensor(r)[0].reshape(-1,1)
-
-trn_term_doc[0].nonzero()[1]
-
-
-class SimpleNB2(nn.Module):
-    def __init__(self, nf, ny):
-        super().__init__()
-        self.w = nn.Embedding(nf, ny)
-        # self.w = nn.Embedding(nf+1, ny)
-        # self.w.weight.data.uniform_(-1, 1)
-        self.w.weight.data = torch.FloatTensor(r)[0].reshape(-1,1)
-        # self.r = nn.Embedding(nf, ny)
-        
-    def forward(self, feat_idx):
-        idx = feat_idx.nonzero()[1]
-        v = self.w(V(idx))
-        x = v.sum()
-        return x
-
-
-net_a = SimpleNB2(len(vocab),1)
-
-idx = trn_term_doc[0].nonzero()[1]
-idx
-
-net_a.w(V(idx)).sum()
-
-net_a(trn_term_doc[0])
-
-# ## Logistic regression (Fastai)
-
 # +
 from fastai.metrics import *
 from fastai.model import *
@@ -225,8 +191,7 @@ class MySimpleNB(nn.Module):
         
     def forward(self, feat_idx):
         # self.w.weight.data[0] = 0
-        # idx = feat_idx - 1
-        idx = feat_idx
+        idx = feat_idx - 1
         idx2 = [a for a in idx if a >= 0]
         idx3 = np.array(idx2)
         v = self.w(V(idx3))
@@ -416,48 +381,15 @@ val_loss_list = []
 val_acc_list= []
 loss_list = []
 
-??net2.forward
+(net2.w(V(trn_term_doc.toarray()))).shape
 
-net2.w
+(net2.w(V(trn_term_doc.toarray()))).sum(1).shape
 
-r.shape
-
-net2.w(torch.LongTensor([1,2,3]))
-
-r
-
-idx = []
-for index, i in enumerate(trn_term_doc[0].toarray()[0]):
-    if i == 1:
-        idx.append(index)
-
-idx
-
-trn_term_doc[0].nonzero()[1]
-
-dir(trn_term_doc)
-
-(net2.w(V(torch.LongTensor(idx)))).sum()
-
-(net2.w(V(trn_term_doc[0].toarray()))).sum(1).shape
-
-((net2.w(V(trn_term_doc[0].toarray()))) != 0).sum()
-
-type(trn_term_doc[0].toarray())
-
-(net2.w(V(torch.LongTensor(trn_term_doc[0].nonzero()[1])))).sum()
-
-(net2.w(V(trn_term_doc[0].toarray()))).sum()
+(net2.w(V(trn_term_doc.toarray()))).sum(1)
 
 (trn_term_doc @ r.T > 0).shape
 
-trn_term_doc[0].shape
-
-r.shape
-
-trn_term_doc[0] @ r.T
-
-
+trn_term_doc @ r.T
 
 val_scores = []
 for t in tqdm(md.val_ds, total=len(trn_term_doc)):
