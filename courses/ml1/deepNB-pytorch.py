@@ -43,6 +43,7 @@ assert (val2_y==1).all()
 
 def sample_util(data, label, n):
     assert len(data) == label.shape[0]
+    np.random.seed(123)
     idx = np.random.choice(range(len(data)),n)
     data_new = [data[i] for i in idx]
     label_new = label[idx]
@@ -57,13 +58,13 @@ def sample(data1, label1, data2, label2, n):
     return data, label
 
 
-# +
-# trn, trn_y = sample(trn1, trn1_y, trn2, trn2_y, 64*100)
-# val, val_y = sample(val1, val1_y, val2, val2_y, 64*20)
-# -
+trn, trn_y = sample(trn1, trn1_y, trn2, trn2_y, 64*100)
+val, val_y = sample(val1, val1_y, val2, val2_y, 64*20)
 
-trn,trn_y = texts_labels_from_folders(f'{PATH}train',names)
-val,val_y = texts_labels_from_folders(f'{PATH}test',names)
+# +
+# trn,trn_y = texts_labels_from_folders(f'{PATH}train',names)
+# val,val_y = texts_labels_from_folders(f'{PATH}test',names)
+# -
 
 # ## create vectors and vocab
 
@@ -205,7 +206,7 @@ net_a = SimpleNB2(len(vocab),1)
 
 loss = binary_loss
 # loss = torch.nn.CrossEntropyLoss
-lr = 1e-2
+lr = 1e-4
 losses=[]
 # -
 
@@ -296,6 +297,7 @@ net_a = SimpleNB2(len(vocab),1)
 loss = binary_loss
 # loss = torch.nn.CrossEntropyLoss
 lr = 1e-3
+wd = 1e-2
 # -
 
 trn_scores = []
@@ -322,7 +324,7 @@ if False:
     print(l4)
 
 # +
-print(f'lr={lr}')
+print(f'lr={lr},wd={wd}')
 f = open(filename, 'a')
 
 from datetime import datetime
@@ -333,17 +335,31 @@ train_acc_list = []
 
 # loss_list = [0]
 loss_list = []
-for epoch in range(5000):
+for epoch in range(30):
+    # learning rate annealing
+    if epoch == 10:
+        lr /= 10
+    if epoch == 20:
+        lr /= 10
+    # eval
     if epoch % 1 == 0:
         train_scores = []
         for x, y in tqdm(zip(trn_term_doc, trn_y), total=trn_term_doc.shape[0]):
-            train_scores.append(loss(net_a(x), V(y)))
+            w2 = 0
+            for p in net_a.parameters():
+                w2 += (p**2).sum()            
+            l = loss(net_a(x), V(y)) + wd * w2
+            train_scores.append(l)
         l1 = np.mean(to_np(train_scores))
         train_loss_list.append(l1)
 
         val_scores = []
         for x, y in tqdm(zip(val_term_doc, val_y), total=val_term_doc.shape[0]):
-            val_scores.append(loss(net_a(x), V(y)))
+            w2 = 0
+            for p in net_a.parameters():
+                w2 += (p**2).sum()            
+            l = loss(net_a(x), V(y)) + wd * w2
+            val_scores.append(l)
         l2 = np.mean(to_np(val_scores))
         val_loss_list.append(l2)
 
@@ -365,7 +381,7 @@ for epoch in range(5000):
         print(f'epoch={epoch}, valid-loss={l2}')
         print(f'epoch={epoch}, train-acc={l3}')
         print(f'epoch={epoch}, valid-acc={l4}')
-        f.write(f"{epoch}\t{l1}\t{l2}\t{l3}\t{l4}\t{nb_score}\t{lr_score}\t{lr_score2}\n")
+        f.write(f"{epoch}\t{lr}\t{wd}\t{l1}\t{l2}\t{l3}\t{l4}\t{nb_score}\t{lr_score}\t{lr_score2}\n")
         f.flush()
 
     print('')
@@ -374,7 +390,10 @@ for epoch in range(5000):
     shuffle_x, shuffle_y = shuffle(trn_term_doc, trn_y)
     for _x, _y in tqdm(zip(shuffle_x, shuffle_y), total=shuffle_x.shape[0]):
         _y_pred = net_a(_x)
-        l = loss(_y_pred, V(_y))
+        w2 = 0
+        for p in net_a.parameters():
+            w2 += (p**2).sum()
+        l = loss(_y_pred, V(_y)) + wd * w2
         # l = loss(yt, y_pred)
         loss_list.append(l)
         # print(f'{index}, {l}, {datetime.now().time()}')
