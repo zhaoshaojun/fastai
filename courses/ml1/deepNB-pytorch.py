@@ -240,16 +240,6 @@ net_a(trn_term_doc[0])
 
 lr
 
-trn_scores = []
-for x, y in tqdm(zip(trn_term_doc, trn_y), total=trn_term_doc.shape[0]):
-    trn_scores.append(score(net_a(x),y))
-np.mean(to_np(trn_scores))
-
-val_scores = []
-for x, y in tqdm(zip(val_term_doc, val_y), total=val_term_doc.shape[0]):
-    val_scores.append(score(net_a(x),y))
-np.mean(to_np(val_scores))
-
 import os
 filename = 'acc.txt'
 try:
@@ -343,28 +333,7 @@ train_acc_list = []
 
 # loss_list = [0]
 loss_list = []
-for epoch in range(1000):
-    print('')
-    print('epoch:', epoch)
-    print('time:', datetime.now())
-    shuffle_x, shuffle_y = shuffle(trn_term_doc, trn_y)
-    for _x, _y in tqdm(zip(shuffle_x, shuffle_y), total=shuffle_x.shape[0]):
-        _y_pred = net_a(_x)
-        l = loss(_y_pred, V(_y))
-        # l = loss(yt, y_pred)
-        loss_list.append(l)
-        # print(f'{index}, {l}, {datetime.now().time()}')
-
-        # Backward pass: 
-        # compute gradient of the loss with respect to 
-        # model parameters
-        l.backward()
-        net_a.w.weight.data -= net_a.w.weight.grad.data * lr
-        # net2.b.data -= net2.b.grad.data * lr
-        
-        net_a.w.weight.grad.data.zero_()
-        # net2.b.grad.data.zero_()   
-
+for epoch in range(5000):
     if epoch % 1 == 0:
         train_scores = []
         for x, y in tqdm(zip(trn_term_doc, trn_y), total=trn_term_doc.shape[0]):
@@ -398,6 +367,28 @@ for epoch in range(1000):
         print(f'epoch={epoch}, valid-acc={l4}')
         f.write(f"{epoch}\t{l1}\t{l2}\t{l3}\t{l4}\t{nb_score}\t{lr_score}\t{lr_score2}\n")
         f.flush()
+
+    print('')
+    print('epoch:', epoch)
+    print('time:', datetime.now())
+    shuffle_x, shuffle_y = shuffle(trn_term_doc, trn_y)
+    for _x, _y in tqdm(zip(shuffle_x, shuffle_y), total=shuffle_x.shape[0]):
+        _y_pred = net_a(_x)
+        l = loss(_y_pred, V(_y))
+        # l = loss(yt, y_pred)
+        loss_list.append(l)
+        # print(f'{index}, {l}, {datetime.now().time()}')
+
+        # Backward pass: 
+        # compute gradient of the loss with respect to 
+        # model parameters
+        l.backward()
+        net_a.w.weight.data -= net_a.w.weight.grad.data * lr
+        # net2.b.data -= net2.b.grad.data * lr
+        
+        net_a.w.weight.grad.data.zero_()
+        # net2.b.grad.data.zero_()   
+
 f.close()
 # -
 len(loss_list)
