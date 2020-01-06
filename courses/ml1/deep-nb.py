@@ -371,7 +371,7 @@ net2 = MySimpleNB(len(vocab), 1)
 # loss = torch.nn.CrossEntropyLoss()
 loss = binary_loss
 # lr = 1e-0
-lr = 1e-2
+lr = 1e-3
 train_loss_list = []
 val_loss_list = []
 val_acc_list= []
@@ -383,10 +383,20 @@ for t in tqdm(md.val_ds, total=len(md.val_ds)):
     val_scores.append(score(x,y))
 np.mean(to_np(val_scores))
 
+import os
+filename = 'acc.txt'
+try:
+    os.remove(filename)
+except:
+    pass
+
 len(md.trn_dl)
 
+# +
 print(f'lr={lr}')
-for epoch in range(10):
+f = open(filename, 'a')
+
+for epoch in range(5000):
     print('')
     print('epoch:', epoch)
     print('time:', datetime.now())
@@ -435,6 +445,10 @@ for epoch in range(10):
         print(f'epoch={epoch}, score={l2}')
         print(f'epoch={epoch}, score={l3}')
         print(f'epoch={epoch}, score={l4}')
+        f.write(f"{l2}\t{l3}\t{l4}\n")
+        f.flush()
+f.close()
+# -
 
 
 
@@ -451,6 +465,8 @@ df = pd.DataFrame({
 df.plot(subplots=True)
 
 plt.plot(loss_list)
+
+plt.plot(val_acc_list)
 
 # ## Deep NB
 
