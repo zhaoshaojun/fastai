@@ -11,7 +11,8 @@ from sklearn.utils import shuffle
 
 # ## create dataset
 
-PATH='data/aclImdb/'
+# PATH = 'data/aclImdb/'
+PATH = '/Users/shaojun/c/fastai/courses/ml1/data/aclImdb/'
 names = ['neg','pos']
 names1 = ['neg', 'pos_']
 names2 = ['neg_', 'pos']
@@ -193,7 +194,7 @@ class SimpleNB2(nn.Module):
         # self.w.weight.data.uniform_(-1, 1)
         self.w.weight.data = torch.FloatTensor(r)[0].reshape(-1,1)
         # self.r = nn.Embedding(nf, ny)
-        
+
     def forward(self, feat_idx):
         idx = feat_idx.nonzero()[1]
         v = self.w(V(idx))
@@ -297,7 +298,7 @@ net_a = SimpleNB2(len(vocab),1)
 loss = binary_loss
 # loss = torch.nn.CrossEntropyLoss
 lr = 1e-3
-wd = 1e-2
+wd = 1e-8
 # -
 
 trn_scores = []
@@ -335,7 +336,7 @@ train_acc_list = []
 
 # loss_list = [0]
 loss_list = []
-for epoch in range(30):
+for epoch in range(1000):
     # learning rate annealing
     if epoch == 10:
         lr /= 10
@@ -347,7 +348,7 @@ for epoch in range(30):
         for x, y in tqdm(zip(trn_term_doc, trn_y), total=trn_term_doc.shape[0]):
             w2 = 0
             for p in net_a.parameters():
-                w2 += (p**2).sum()            
+                w2 += (p**2).sum()
             l = loss(net_a(x), V(y)) + wd * w2
             train_scores.append(l)
         l1 = np.mean(to_np(train_scores))
@@ -357,7 +358,7 @@ for epoch in range(30):
         for x, y in tqdm(zip(val_term_doc, val_y), total=val_term_doc.shape[0]):
             w2 = 0
             for p in net_a.parameters():
-                w2 += (p**2).sum()            
+                w2 += (p**2).sum()
             l = loss(net_a(x), V(y)) + wd * w2
             val_scores.append(l)
         l2 = np.mean(to_np(val_scores))
@@ -368,7 +369,7 @@ for epoch in range(30):
             train_acc_scores.append(score(net_a(x),y))
         l3 = np.mean(to_np(train_acc_scores))
         train_acc_list.append(l3)
-        
+
         acc_scores = []
         for x, y in tqdm(zip(val_term_doc, val_y), total=val_term_doc.shape[0]):
             acc_scores.append(score(net_a(x),y))
@@ -388,25 +389,35 @@ for epoch in range(30):
     print('epoch:', epoch)
     print('time:', datetime.now())
     shuffle_x, shuffle_y = shuffle(trn_term_doc, trn_y)
-    for _x, _y in tqdm(zip(shuffle_x, shuffle_y), total=shuffle_x.shape[0]):
-        _y_pred = net_a(_x)
-        w2 = 0
-        for p in net_a.parameters():
-            w2 += (p**2).sum()
-        l = loss(_y_pred, V(_y)) + wd * w2
-        # l = loss(yt, y_pred)
-        loss_list.append(l)
-        # print(f'{index}, {l}, {datetime.now().time()}')
 
-        # Backward pass: 
-        # compute gradient of the loss with respect to 
-        # model parameters
-        l.backward()
-        net_a.w.weight.data -= net_a.w.weight.grad.data * lr
-        # net2.b.data -= net2.b.grad.data * lr
-        
-        net_a.w.weight.grad.data.zero_()
-        # net2.b.grad.data.zero_()   
+    batch_size = 16
+    batch_loss = []
+    for _x, _y in tqdm(zip(shuffle_x, shuffle_y), total=shuffle_x.shape[0]):
+        if len(batch_loss) == batch_size:
+            w2 = 0
+            for p in net_a.parameters():
+                w2 += (p**2).sum()
+            l = 0
+            for one_loss in batch_loss:
+                l += one_loss
+            l = 1 / batch_size + wd * w2
+            batch_loss = []
+            # l = loss(yt, y_pred)
+            loss_list.append(l)
+            # print(f'{index}, {l}, {datetime.now().time()}')
+
+            # Backward pass:
+            # compute gradient of the loss with respect to
+            # model parameters
+            l.backward()
+            net_a.w.weight.data -= net_a.w.weight.grad.data * lr
+            # net2.b.data -= net2.b.grad.data * lr
+
+            net_a.w.weight.grad.data.zero_()
+            # net2.b.grad.data.zero_()
+
+        one_loss = loss(net_a(_x), V(_y))
+        batch_loss.append(one_loss)
 
 f.close()
 # -
@@ -420,9 +431,9 @@ len(train_loss_list)
 
 length=len(train_loss_list)
 df = pd.DataFrame({
-    'train':train_loss_list[:length], 
+    'train':train_loss_list[:length],
     'valid':val_loss_list[:length],
-    'train_acc':train_acc_list[:length], 
+    'train_acc':train_acc_list[:length],
     'valid_acc':val_acc_list[:length]
 })
 
