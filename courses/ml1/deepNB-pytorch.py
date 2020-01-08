@@ -297,8 +297,9 @@ net_a = SimpleNB2(len(vocab),1)
 
 loss = binary_loss
 # loss = torch.nn.CrossEntropyLoss
-lr = 1e-3
-wd = 1e-8
+lr = 1e-2
+wd = 1e-3
+bs = 8
 # -
 
 trn_scores = []
@@ -338,10 +339,11 @@ train_acc_list = []
 loss_list = []
 for epoch in range(1000):
     # learning rate annealing
-    if epoch == 10:
-        lr /= 10
-    if epoch == 20:
-        lr /= 10
+    if False:
+        if epoch == 10:
+            lr /= 10
+        if epoch == 20:
+            lr /= 10
     # eval
     if epoch % 1 == 0:
         train_scores = []
@@ -382,7 +384,7 @@ for epoch in range(1000):
         print(f'epoch={epoch}, valid-loss={l2}')
         print(f'epoch={epoch}, train-acc={l3}')
         print(f'epoch={epoch}, valid-acc={l4}')
-        f.write(f"{epoch}\t{lr}\t{wd}\t{l1}\t{l2}\t{l3}\t{l4}\t{nb_score}\t{lr_score}\t{lr_score2}\n")
+        f.write(f"{epoch}\t{lr}\t{wd}\t{bs}\t{l1}\t{l2}\t{l3}\t{l4}\t{nb_score}\t{lr_score}\t{lr_score2}\n")
         f.flush()
 
     print('')
@@ -390,26 +392,25 @@ for epoch in range(1000):
     print('time:', datetime.now())
     shuffle_x, shuffle_y = shuffle(trn_term_doc, trn_y)
 
-    batch_size = 16
     batch_loss = []
     for _x, _y in tqdm(zip(shuffle_x, shuffle_y), total=shuffle_x.shape[0]):
-        if len(batch_loss) == batch_size:
+        if len(batch_loss) == bs:
             w2 = 0
             for p in net_a.parameters():
                 w2 += (p**2).sum()
-            l = 0
+            L = 0
             for one_loss in batch_loss:
-                l += one_loss
-            l = 1 / batch_size + wd * w2
+                L += one_loss
+            L = L / bs + wd * w2
             batch_loss = []
-            # l = loss(yt, y_pred)
-            loss_list.append(l)
+            # L = loss(yt, y_pred)
+            loss_list.append(L)
             # print(f'{index}, {l}, {datetime.now().time()}')
 
             # Backward pass:
             # compute gradient of the loss with respect to
             # model parameters
-            l.backward()
+            L.backward()
             net_a.w.weight.data -= net_a.w.weight.grad.data * lr
             # net2.b.data -= net2.b.grad.data * lr
 
