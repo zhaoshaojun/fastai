@@ -21,7 +21,7 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 4. video 4: MODEL INTERPRETATION (FEATURE IMPORTANCE, TREE INTERPRETER)
 5. video 5: review; EXTRAPOLATION; SOTA; RF FROM SCRATCH (1:02:30)
 6. video 6:
-7. video 7: first part, review, last ~10 mins, SGD on MNIST
+7. video 7: first part, review; finish RF FROM SCRATCH; last ~10 mins, SGD on MNIST
 ## part 2 (video lession 8 to 12): 
 1. video 8: SGD on MNIST (**notebook4**)
 2. Video 9: continue SGD on MNIST (**notebook4**)
