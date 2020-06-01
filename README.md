@@ -19,7 +19,7 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 2. video 2: bagging, Random Forest with minimum hypter parameter tuning
 3. video 3: MODEL INTERPRETATION (later in the video)
 4. video 4: MODEL INTERPRETATION (FEATURE IMPORTANCE, TREE INTERPRETER)
-5. video 5:
+5. video 5: EXTRAPOLATION AND RF FROM SCRATCH
 6. video 6:
 7. video 7: first part, review, last ~10 mins, SGD on MNIST
 ## part 2 (video lession 8 to 12): 
