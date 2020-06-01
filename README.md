@@ -16,7 +16,7 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 # Note to myself
 ## part 1 (video lession 1 to 7): 
 1. video 1: Default Random Forest
-2. video 2: Random Forest with minimum hypter parameter tuning
+2. video 2: bagging, Random Forest with minimum hypter parameter tuning
 3. video 3: MODEL INTERPRETATION (later in the video)
 4. video 4: MODEL INTERPRETATION (FEATURE IMPORTANCE, TREE INTERPRETER)
 5. video 5:
