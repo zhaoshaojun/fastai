@@ -15,9 +15,9 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 
 # Note to myself
 ## part 1 (video lession 1 to 7): 
-1. video 1:
-2. video 2:
-3. video 3:
+1. video 1: Default Random Forest
+2. video 2: Random Forest with minimum hypter parameter tuning
+3. video 3: MODEL INTERPRETATION (later in the video)
 4. video 4:
 5. video 5:
 6. video 6:
