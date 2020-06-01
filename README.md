@@ -30,5 +30,5 @@ Make sure you have python 3.6 and scikit-learn 0.22. After that, just git clone 
 4. video 12: first half, Rossman project (Embeddings); second half, ethical issues
 
 ___
-Dec, 2019
+2020
 Shaojun Zhao
